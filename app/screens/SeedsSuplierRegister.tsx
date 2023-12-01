@@ -32,7 +32,6 @@ const SeedsSuplierRegister = () => {
 
       alert("Proveedor registrado correctamente");
 
-      // clean inputs
         setSupplierName("");
         setSupplierPhone("");
         setSupplierSeedOrigin("");
@@ -133,11 +132,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   container: {
-    // marginHorizontal: 20,
     width: "80%",
-    // flex: 1,
     flexDirection: "column",
     alignSelf: "center",
-    // justifyContent: "center",
   },
 });

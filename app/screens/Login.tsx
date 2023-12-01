@@ -29,13 +29,13 @@ function Login({ navigation }: RouterProps) {
         auth,
         email,
         password
-      );
-      console.log(userCredential);
+      )
+      console.log(userCredential)
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <View style={styles.container}>
@@ -65,7 +65,7 @@ function Login({ navigation }: RouterProps) {
             <Button title="Iniciar Sesión" onPress={() => signIn()}></Button>
           </>
         )}
-        <Text>¿No tienes una cuenta? </Text>
+        <Text>¿No tienes una cuenta?</Text>
         <Text
           style={{ color: "blue" }}
           onPress={() => navigation.navigate("Register")}

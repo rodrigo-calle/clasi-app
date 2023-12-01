@@ -1,13 +1,69 @@
 import { NavigationProp } from "@react-navigation/native";
-import React from "react";
-import { Button, StyleSheet, Text, TextInput, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { Camera } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import CameraButton, { IconType } from "../components/Button";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const ClassificationDetails = ({ navigation }: RouterProps) => {
+  const [hasPermission, setHasPermission] = React.useState<boolean>(false);
+  const [image, setImage] = useState<string | null>(null);
+  // const [camaraType, setCamaraType] = useState(Camera.Constants.Type.back);
+  // const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
+  const [classificationSession, setClassificationSession] =
+    useState<boolean>(false);
+  const cameraRef = useRef<Camera>(null);
+
+  useEffect(() => {
+    (async () => {
+      MediaLibrary.requestPermissionsAsync();
+      const cameraStatus = await Camera.requestPermissionsAsync();
+      setHasPermission(cameraStatus.status === "granted");
+    })();
+  }, []);
+
+  if (hasPermission === false) {
+    return (
+      <View>
+        <Text>Permiso denegado</Text>
+      </View>
+    );
+  }
+
+  const takePicture = async () => {
+    if (cameraRef) {
+      try {
+        const data = await cameraRef.current?.takePictureAsync();
+        if (data && data.uri) setImage(data.uri);
+      } catch (error) {
+        console.log({ error });
+      }
+    }
+  };
+
+  const takePictureAgain = async () => {
+    setImage(null);
+  };
+
+  const saveAndContinue = async () => {
+    try {
+      const asset = await MediaLibrary.createAssetAsync(image!);
+      console.log(asset);
+      setImage(null);
+    } catch (error) {
+      console.log({ error });
+    }
+  };
+
+  const classificationHandler = async () => {
+    setClassificationSession(!classificationSession);
+  };
+
   return (
     <View>
       <Button
@@ -16,14 +72,28 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       ></Button>
       <View
         style={{
-          height: 200,
+          height: 400,
           width: "90%",
-          backgroundColor: "black",
+          backgroundColor: "#fff",
           marginHorizontal: "auto",
           alignSelf: "center",
           marginTop: 20,
         }}
-      ></View>
+      >
+        {!image ? (
+          <Camera
+            ref={cameraRef}
+            style={{
+              flex: 1,
+              borderRadius: 10,
+            }}
+            type={Camera.Constants.Type.back}
+            flashMode={Camera.Constants.FlashMode.off}
+          ></Camera>
+        ) : (
+          <Image source={{ uri: image }} style={{ flex: 1 }}></Image>
+        )}
+      </View>
       <View
         style={{
           width: "90%",
@@ -37,14 +107,42 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         <View
           style={{
             flexDirection: "row",
-            gap: 4,
+            gap: 6,
           }}
         >
-          <View style={styles.mediaButtons}></View>
-          <View style={styles.mediaButtons}></View>
-          <View style={styles.mediaButtons}></View>
+          <View style={styles.mediaButtons}>
+            <CameraButton
+              icon={IconType.check}
+              title=""
+              color="#000"
+              onPress={classificationHandler}
+            ></CameraButton>
+          </View>
+          <View style={styles.mediaButtons}>
+            <CameraButton
+              icon={IconType.forward}
+              title=""
+              color="#000"
+              onPress={saveAndContinue}
+            ></CameraButton>
+          </View>
+          <View style={styles.mediaButtons}>
+            <CameraButton
+              icon={IconType.retweet}
+              title=""
+              color="#000"
+              onPress={takePictureAgain}
+            ></CameraButton>
+          </View>
         </View>
-        <View style={styles.mediaButtons}></View>
+        <View style={styles.mediaButtons}>
+          <CameraButton
+            icon={IconType.camera}
+            title=""
+            color="#000"
+            onPress={takePicture}
+          ></CameraButton>
+        </View>
       </View>
       <Text style={styles.subtitle}>Semillas Clasificadas</Text>
       <View
@@ -87,7 +185,7 @@ const styles = StyleSheet.create({
   mediaButtons: {
     width: 35,
     height: 35,
-    backgroundColor: "#D9D9D9",
+    marginTop: 10,
   },
   previewContainer: {
     flex: 1,

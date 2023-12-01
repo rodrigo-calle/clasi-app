@@ -26,7 +26,7 @@ const Register = ({ navigation }: RouterProps) => {
   const db = FIREBASE_DB;
 
   const signUp = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -41,13 +41,13 @@ const Register = ({ navigation }: RouterProps) => {
           userName: userName,
         });
 
-        alert("Usuario creado correctamente");
+        alert("Usuario creado correctamente")
       }
     } catch (error) {
       alert(error);
     }
     setLoading(false);
-  };
+  }
 
   return (
     <View style={styles.container}>
@@ -85,7 +85,7 @@ const Register = ({ navigation }: RouterProps) => {
             <Button title="Registrate" onPress={() => signUp()}></Button>
           </>
         )}
-        <Text>Ya tienes una cuenta? </Text>
+        <Text>Ya tienes una cuenta?</Text>
         <Text
           style={{ color: "blue" }}
           onPress={() => navigation.navigate("Login")}

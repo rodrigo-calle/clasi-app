@@ -1,10 +1,9 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import Login from "./app/screens/Login";
 import ClassificationDetails from "./app/screens/ClassificationDetails";
 import SeedsSuplierRegister from "./app/screens/SeedsSuplierRegister";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Register from "./app/screens/Register";
@@ -28,16 +27,12 @@ function InsideLayout() {
 }
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(null);
-
+  const [user, setUser] = useState<any>(null);
   useEffect(() => {
-    onAuthStateChanged(FIREBASE_AUTH, (user) => {
-    
-        setUser(user);
-  
-    });
-  }, []);
-
+    onAuthStateChanged(FIREBASE_AUTH,(user)=>{
+        setUser(user)  
+    })
+  }, [])
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
