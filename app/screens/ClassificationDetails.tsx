@@ -24,6 +24,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { Entypo } from "@expo/vector-icons";
+import Loading from "../components/Loading";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -44,6 +46,8 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     oocarpa: 0,
     psegoustrobus: 0,
   });
+  const [openLoading, setOpenLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 
   const db = FIREBASE_DB;
   const auth = FIREBASE_AUTH;
@@ -94,6 +98,8 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       return alert("Inicia una sesión de clasificación");
     }
     try {
+      setOpenLoading(true);
+      setLoadingMessage("Clasificando semilla...");
       const response = await getSeedClassification(imageData!);
       if (response.status === 200) {
         if (response.data.class === "oocarpa") {
@@ -149,6 +155,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       }
       setImage(null);
       setImageData(undefined);
+      setOpenLoading(false);
     } catch (error) {
       console.log({ error });
     }
@@ -158,9 +165,9 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     setClassificationSessionState(!classificationSessionState);
 
     const classificationCollection = collection(db, "classification_sessions");
-
-    if (classificationSessionState) {
-      // create new classification session
+    if (!currentClassificationSessionId) {
+      setOpenLoading(true);
+      setLoadingMessage("Iniciando sesión de clasificación...");
       const user = auth?.currentUser?.email;
       const q = query(collection(db, "users"), where("email", "==", user));
       const usersResult = await getDocs(q);
@@ -175,12 +182,13 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       });
 
       setCurrentClassificationSessionId(newSession.id);
-
-      alert("Sesión de clasificación iniciada");
       setImage(null);
       setImageData(undefined);
+      setOpenLoading(false);
+      alert("Sesión de clasificación iniciada");
     } else {
-      // close current classification session
+      setOpenLoading(true);
+      setLoadingMessage("Finalizando y guardando sesión de clasificación...");
       const sessionRef = doc(
         db,
         "classification_sessions",
@@ -193,7 +201,6 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
 
       setCurrentClassificationSessionId(null);
 
-      alert("Sesión de clasificación terminada");
       setClassificationDataValues({
         tecunumanii: 0,
         oocarpa: 0,
@@ -201,15 +208,18 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       });
       setImage(null);
       setImageData(undefined);
+      setOpenLoading(false);
+      alert("Sesión de clasificación terminada");
     }
   };
 
   return (
-    <ScrollView>
+    <ScrollView scrollEnabled={!openLoading}>
       <Button
         title="Cerrar Sesión"
         onPress={() => FIREBASE_AUTH.signOut()}
       ></Button>
+      <Loading text={loadingMessage} open={openLoading}></Loading>
       <View
         style={{
           height: 400,
@@ -220,6 +230,70 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
           marginTop: 20,
         }}
       >
+        {currentClassificationSessionId ? (
+          <>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                width: "90%",
+                alignSelf: "center",
+                alignContent: "center",
+                marginTop: 0,
+                paddingVertical: 10,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "bold",
+                  marginLeft: 25,
+                  marginTop: 0,
+                }}
+              >
+                Sesión de clasificación en curso
+              </Text>
+              <Entypo
+                name="circle"
+                color="green"
+                size={20}
+                style={{ marginTop: 4 }}
+              />
+            </View>
+            <Text>Cod: {currentClassificationSessionId} </Text>
+          </>
+        ) : (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "90%",
+              alignSelf: "center",
+              alignContent: "center",
+              marginTop: 0,
+              paddingVertical: 10,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 18,
+                fontWeight: "bold",
+                marginLeft: 25,
+                marginTop: 0,
+              }}
+            >
+              Sesión de clasificación no iniciada
+            </Text>
+            <Entypo
+              name="circle"
+              color="red"
+              style={{
+                marginTop: 4,
+              }}
+              size={16}
+            />
+          </View>
+        )}
         {!image ? (
           <Camera
             ref={cameraRef}
@@ -231,7 +305,10 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
             flashMode={Camera.Constants.FlashMode.off}
           ></Camera>
         ) : (
-          <Image source={{ uri: image }} style={{ flex: 1 }}></Image>
+          <Image
+            source={{ uri: image }}
+            style={{ flex: 1, borderRadius: 10 }}
+          ></Image>
         )}
       </View>
       <View

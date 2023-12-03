@@ -10,8 +10,6 @@ export enum IconType  {
     back = 'back',
     retweet = 'retweet',
     check = 'check',
-    play = 'play',
-    minuscircle = 'minuscircle'
 }
 
 type PropTypes = {

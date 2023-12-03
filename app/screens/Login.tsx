@@ -30,7 +30,6 @@ function Login({ navigation }: RouterProps) {
         email,
         password
       )
-      console.log(userCredential)
     } catch (error) {
       console.log(error)
     }

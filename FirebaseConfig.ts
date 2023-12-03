@@ -1,7 +1,7 @@
-import { initializeApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
-import { getFirestore } from "firebase/firestore"
-import { getFunctions } from "firebase/functions"
+import { initializeApp } from "firebase/app";
+import { getAuth, initializeAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -11,11 +11,9 @@ const firebaseConfig = {
   messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
-}
+};
 
-console.log("firebaseConfig", firebaseConfig)
-
-export const FIREBASE_APP = initializeApp(firebaseConfig)
-export const FIREBASE_AUTH = getAuth(FIREBASE_APP)
-export const FIREBASE_DB = getFirestore(FIREBASE_APP)
-export const FIREBASE_FUNCTIONS = getFunctions(FIREBASE_APP)
+export const FIREBASE_APP = initializeApp(firebaseConfig);
+export const FIREBASE_AUTH = getAuth(FIREBASE_APP);
+export const FIREBASE_DB = getFirestore(FIREBASE_APP);
+export const FIREBASE_FUNCTIONS = getFunctions(FIREBASE_APP);
