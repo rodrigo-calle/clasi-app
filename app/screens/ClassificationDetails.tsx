@@ -1,11 +1,29 @@
 import { NavigationProp } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
-import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import {
+  Button,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { Camera, CameraCapturedPicture } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton, { IconType } from "../components/Button";
 import { getSeedClassification } from "../services/classification";
+import {
+  Timestamp,
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -17,16 +35,25 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   const [imageData, setImageData] = useState<CameraCapturedPicture | undefined>(
     undefined
   );
-  // const [camaraType, setCamaraType] = useState(Camera.Constants.Type.back);
-  // const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
-  const [classificationSession, setClassificationSession] =
+  const [classificationSessionState, setClassificationSessionState] =
     useState<boolean>(false);
+  const [currentClassificationSessionId, setCurrentClassificationSessionId] =
+    useState<string | null>(null);
+  const [classificationDataValues, setClassificationDataValues] = useState({
+    tecunumanii: 0,
+    oocarpa: 0,
+    psegoustrobus: 0,
+  });
+
+  const db = FIREBASE_DB;
+  const auth = FIREBASE_AUTH;
+
   const cameraRef = useRef<Camera>(null);
 
   useEffect(() => {
     (async () => {
       MediaLibrary.requestPermissionsAsync();
-      const cameraStatus = await Camera.requestPermissionsAsync();
+      const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasPermission(cameraStatus.status === "granted");
     })();
   }, []);
@@ -40,10 +67,13 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   }
 
   const takePicture = async () => {
+    if (!currentClassificationSessionId) {
+      return alert("Inicia una sesión de clasificación");
+    }
+
     if (cameraRef) {
       try {
         const data = await cameraRef.current?.takePictureAsync();
-        console.log({ data });
         if (data && data.uri) {
           setImageData(data);
           setImage(data.uri);
@@ -60,12 +90,62 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   };
 
   const saveAndContinue = async () => {
+    if (!currentClassificationSessionId) {
+      return alert("Inicia una sesión de clasificación");
+    }
     try {
       const response = await getSeedClassification(imageData!);
       if (response.status === 200) {
-        alert(
-          `Variedad 1: ${response.data.class} \n Probabilidad: ${response.data.confidence} `
-        );
+        if (response.data.class === "oocarpa") {
+          const sessionRef = doc(
+            db,
+            "classification_sessions",
+            currentClassificationSessionId!
+          );
+          setClassificationDataValues((prev) => ({
+            ...prev,
+            oocarpa: prev.oocarpa + 1,
+          }));
+
+          await updateDoc(sessionRef, {
+            classificationData: classificationDataValues,
+          });
+          alert("Semilla clasificada como Oocarpa");
+        }
+
+        if (response.data.class === "psegoutrobus") {
+          const sessionRef = doc(
+            db,
+            "classification_sessions",
+            currentClassificationSessionId!
+          );
+          setClassificationDataValues((prev) => ({
+            ...prev,
+            psegoustrobus: prev.psegoustrobus + 1,
+          }));
+
+          await updateDoc(sessionRef, {
+            classificationData: classificationDataValues,
+          });
+          alert("Semilla clasificada como Psegoustrobus");
+        }
+
+        if (response.data.class === "tecunumanii") {
+          const sessionRef = doc(
+            db,
+            "classification_sessions",
+            currentClassificationSessionId!
+          );
+          setClassificationDataValues((prev) => ({
+            ...prev,
+            tecunumanii: prev.tecunumanii + 1,
+          }));
+
+          await updateDoc(sessionRef, {
+            classificationData: classificationDataValues,
+          });
+          alert("Semilla clasificada como Tecunumanii");
+        }
       }
       setImage(null);
       setImageData(undefined);
@@ -74,12 +154,58 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     }
   };
 
-  const classificationHandler = async () => {
-    setClassificationSession(!classificationSession);
+  const classificationSessionHandler = async () => {
+    setClassificationSessionState(!classificationSessionState);
+
+    const classificationCollection = collection(db, "classification_sessions");
+
+    if (classificationSessionState) {
+      // create new classification session
+      const user = auth?.currentUser?.email;
+      const q = query(collection(db, "users"), where("email", "==", user));
+      const usersResult = await getDocs(q);
+
+      const userRef = usersResult.docs[0].ref;
+
+      const newSession = await addDoc(classificationCollection, {
+        user: userRef,
+        classificationData: classificationDataValues,
+        createdAt: Timestamp.now(),
+        finishedAt: null,
+      });
+
+      setCurrentClassificationSessionId(newSession.id);
+
+      alert("Sesión de clasificación iniciada");
+      setImage(null);
+      setImageData(undefined);
+    } else {
+      // close current classification session
+      const sessionRef = doc(
+        db,
+        "classification_sessions",
+        currentClassificationSessionId!
+      );
+
+      await updateDoc(sessionRef, {
+        finishedAt: Timestamp.now(),
+      });
+
+      setCurrentClassificationSessionId(null);
+
+      alert("Sesión de clasificación terminada");
+      setClassificationDataValues({
+        tecunumanii: 0,
+        oocarpa: 0,
+        psegoustrobus: 0,
+      });
+      setImage(null);
+      setImageData(undefined);
+    }
   };
 
   return (
-    <View>
+    <ScrollView>
       <Button
         title="Cerrar Sesión"
         onPress={() => FIREBASE_AUTH.signOut()}
@@ -129,7 +255,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
               icon={IconType.check}
               title=""
               color="#000"
-              onPress={classificationHandler}
+              onPress={classificationSessionHandler}
             ></CameraButton>
           </View>
           <View style={styles.mediaButtons}>
@@ -165,31 +291,52 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         }}
       >
         <View style={styles.varietyRow}>
-          <Text style={styles.textRow}>Variedad 1:</Text>
-          <TextInput style={styles.input} value="20"></TextInput>
+          <Text style={styles.textRow}>Tecunumanii:</Text>
+          <TextInput
+            style={styles.input}
+            editable={false}
+            value={classificationDataValues.tecunumanii.toString()}
+          ></TextInput>
         </View>
         <View style={styles.varietyRow}>
-          <Text style={styles.textRow}>Variedad 2:</Text>
-          <TextInput style={styles.input} value="15"></TextInput>
+          <Text style={styles.textRow}>Oocarpa:</Text>
+          <TextInput
+            style={styles.input}
+            editable={false}
+            value={classificationDataValues.oocarpa.toString()}
+          ></TextInput>
         </View>
         <View style={styles.varietyRow}>
-          <Text style={styles.textRow}>Variedad 3:</Text>
-          <TextInput style={styles.input} value="0"></TextInput>
+          <Text style={styles.textRow}>Psegoustrobus:</Text>
+          <TextInput
+            style={styles.input}
+            editable={false}
+            value={classificationDataValues.psegoustrobus.toString()}
+          ></TextInput>
         </View>
         <View style={styles.varietyRow}>
           <Text style={styles.textRow}>Desconocido:</Text>
-          <TextInput style={styles.input} value="0"></TextInput>
+          <TextInput
+            style={styles.input}
+            editable={false}
+            value="0"
+          ></TextInput>
         </View>
       </View>
       <Text
-        style={{ color: "blue", marginLeft: 25, marginTop: 15 }}
+        style={{
+          color: "blue",
+          marginLeft: 25,
+          marginTop: 15,
+          marginBottom: 10,
+        }}
         onPress={() =>
           navigation.navigate("Registro de Proveedores de Semilla")
         }
       >
         Registro de Proveedor de Semilla
       </Text>
-    </View>
+    </ScrollView>
   );
 };
 
