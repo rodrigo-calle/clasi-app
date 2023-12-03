@@ -2,9 +2,10 @@ import { NavigationProp } from "@react-navigation/native";
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Image, StyleSheet, Text, TextInput, View } from "react-native";
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
-import { Camera } from "expo-camera";
+import { Camera, CameraCapturedPicture } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton, { IconType } from "../components/Button";
+import { getSeedClassification } from "../services/classification";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -13,6 +14,9 @@ interface RouterProps {
 const ClassificationDetails = ({ navigation }: RouterProps) => {
   const [hasPermission, setHasPermission] = React.useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<CameraCapturedPicture | undefined>(
+    undefined
+  );
   // const [camaraType, setCamaraType] = useState(Camera.Constants.Type.back);
   // const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
   const [classificationSession, setClassificationSession] =
@@ -39,7 +43,11 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     if (cameraRef) {
       try {
         const data = await cameraRef.current?.takePictureAsync();
-        if (data && data.uri) setImage(data.uri);
+        console.log({ data });
+        if (data && data.uri) {
+          setImageData(data);
+          setImage(data.uri);
+        }
       } catch (error) {
         console.log({ error });
       }
@@ -48,13 +56,19 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
 
   const takePictureAgain = async () => {
     setImage(null);
+    setImageData(undefined);
   };
 
   const saveAndContinue = async () => {
     try {
-      const asset = await MediaLibrary.createAssetAsync(image!);
-      console.log(asset);
+      const response = await getSeedClassification(imageData!);
+      if (response.status === 200) {
+        alert(
+          `Variedad 1: ${response.data.class} \n Probabilidad: ${response.data.confidence} `
+        );
+      }
       setImage(null);
+      setImageData(undefined);
     } catch (error) {
       console.log({ error });
     }
