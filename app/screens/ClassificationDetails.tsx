@@ -413,6 +413,19 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       >
         Registro de Proveedor de Semilla
       </Text>
+      <Text
+        style={{
+          color: "blue",
+          marginLeft: 25,
+          marginTop: 15,
+          marginBottom: 10,
+        }}
+        onPress={() =>
+          navigation.navigate("Registro de Técnicos")
+        }
+      >
+        Registro de Técnicos
+      </Text>
     </ScrollView>
   );
 };
