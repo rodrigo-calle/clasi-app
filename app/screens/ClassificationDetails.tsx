@@ -329,7 +329,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         >
           <View style={styles.mediaButtons}>
             <CameraButton
-              icon={IconType.check}
+              icon={IconType.play}
               title=""
               color="#000"
               onPress={classificationSessionHandler}

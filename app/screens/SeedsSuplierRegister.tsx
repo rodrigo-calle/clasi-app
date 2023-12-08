@@ -32,11 +32,10 @@ const SeedsSuplierRegister = () => {
 
       alert("Proveedor registrado correctamente");
 
-        setSupplierName("");
-        setSupplierPhone("");
-        setSupplierSeedOrigin("");
-        setSupplierHarvestMethod("");
-        
+      setSupplierName("");
+      setSupplierPhone("");
+      setSupplierSeedOrigin("");
+      setSupplierHarvestMethod("");
     } catch (error) {
       alert(error);
     }
@@ -56,37 +55,37 @@ const SeedsSuplierRegister = () => {
           alignSelf: "center",
         }}
       >
-        Registro de Proveedor
+        Registrar Proveedor
       </Text>
       <View style={styles.container}>
         <KeyboardAvoidingView behavior="padding">
-          <Text>Nombre del Proveedor</Text>
           <TextInput
             value={supplierName}
             onChangeText={(text) => setSupplierName(text)}
             autoCapitalize="none"
             style={styles.input}
+            placeholder="Nombre del Proveedor"
           ></TextInput>
-          <Text>Telefono:</Text>
           <TextInput
             value={supplierPhone}
             onChangeText={(text) => setSupplierPhone(text)}
             autoCapitalize="none"
             style={styles.input}
+            placeholder="Telefono"
           ></TextInput>
-          <Text>Procedencia de Semilla</Text>
           <TextInput
             value={supplierSeedOrigin}
             onChangeText={(text) => setSupplierSeedOrigin(text)}
             autoCapitalize="none"
             style={styles.input}
+            placeholder="Procedencia de Semilla"
           ></TextInput>
-          <Text>Método de Recolección</Text>
           <TextInput
             value={supplierHarvestMethod}
             onChangeText={(text) => setSupplierHarvestMethod(text)}
             autoCapitalize="none"
             style={styles.input}
+            placeholder="Método de Recolección"
           ></TextInput>
           <Pressable
             style={styles.button}
@@ -120,7 +119,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: "black",
+    backgroundColor: "#689BFF",
     marginTop: 20,
   },
   input: {

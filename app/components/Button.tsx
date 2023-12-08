@@ -10,6 +10,7 @@ export enum IconType  {
     back = 'back',
     retweet = 'retweet',
     check = 'check',
+    play = 'controller-play'
 }
 
 type PropTypes = {

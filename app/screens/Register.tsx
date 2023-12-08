@@ -12,6 +12,7 @@ import {
 import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { NavigationProp } from "@react-navigation/native";
+import { Image } from "expo-image";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -26,7 +27,7 @@ const Register = ({ navigation }: RouterProps) => {
   const db = FIREBASE_DB;
 
   const signUp = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -41,17 +42,31 @@ const Register = ({ navigation }: RouterProps) => {
           userName: userName,
         });
 
-        alert("Usuario creado correctamente")
+        alert("Usuario creado correctamente");
       }
     } catch (error) {
       alert(error);
     }
     setLoading(false);
-  }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 20 }}>
+      <Image
+        style={styles.image}
+        source="https://res.cloudinary.com/drk1pe742/image/upload/v1702007467/clasiapp/assets/seed_1_id3cu2.png"
+        placeholder="Logo"
+        contentFit="contain"
+        transition={1000}
+      />
+      <Text
+        style={{
+          fontSize: 30,
+          fontWeight: "bold",
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
         Registrar
       </Text>
       <KeyboardAvoidingView behavior="padding">
@@ -81,8 +96,11 @@ const Register = ({ navigation }: RouterProps) => {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            {/* <Button title="Iniciar Sesión" onPress={() => signIn()}></Button> */}
-            <Button title="Registrate" onPress={() => signUp()}></Button>
+            <Button
+              title="Registrate"
+              color={"#689BFF"}
+              onPress={() => signUp()}
+            ></Button>
           </>
         )}
         <Text>Ya tienes una cuenta?</Text>
@@ -101,9 +119,11 @@ export default Register;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
+    marginHorizontal: 0,
     flex: 1,
     justifyContent: "center",
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
   input: {
     marginVertical: 4,
@@ -112,6 +132,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     backgroundColor: "#fff",
+    width: 350,
   },
   buttons: {
     marginVertical: 2,
@@ -120,5 +141,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     backgroundColor: "green",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    marginBottom: 10,
+    textAlign: "center",
   },
 });

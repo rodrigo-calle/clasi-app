@@ -11,6 +11,7 @@ import {
 import { FIREBASE_AUTH } from "../../FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
+import { Image } from "expo-image";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -29,19 +30,38 @@ function Login({ navigation }: RouterProps) {
         auth,
         email,
         password
-      )
+      );
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-    setLoading(false)
-  }
+    setLoading(false);
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={{ fontSize: 30, fontWeight: "bold", marginBottom: 20 }}>
+      <Image
+        style={styles.image}
+        source="https://res.cloudinary.com/drk1pe742/image/upload/v1702007467/clasiapp/assets/seed_1_id3cu2.png"
+        placeholder="Logo"
+        contentFit="contain"
+        transition={1000}
+      />
+      <Text
+        style={{
+          fontSize: 30,
+          fontWeight: "bold",
+          marginBottom: 20,
+          textAlign: "center",
+        }}
+      >
         Iniciar Sesión
       </Text>
-      <KeyboardAvoidingView behavior="padding">
+      <KeyboardAvoidingView
+        behavior="padding"
+        style={{
+          backgroundColor: "#fff",
+        }}
+      >
         <TextInput
           value={email}
           style={styles.input}
@@ -61,7 +81,11 @@ function Login({ navigation }: RouterProps) {
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           <>
-            <Button title="Iniciar Sesión" onPress={() => signIn()}></Button>
+            <Button
+              color={"#689BFF"}              
+              title="Iniciar Sesión"
+              onPress={() => signIn()}
+            ></Button>
           </>
         )}
         <Text>¿No tienes una cuenta?</Text>
@@ -80,9 +104,11 @@ export default Login;
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
+    marginHorizontal: 0,
     flex: 1,
     justifyContent: "center",
+    backgroundColor: "#fff",
+    alignItems: "center",
   },
   input: {
     marginVertical: 4,
@@ -91,6 +117,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     backgroundColor: "#fff",
+    width: 350,
+    marginBottom: 10,
+    borderBlockColor: "#C9C9C9",
   },
   buttons: {
     marginVertical: 2,
@@ -99,5 +128,12 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 10,
     backgroundColor: "green",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 5,
+    marginBottom: 10,
+    textAlign: "center",
   },
 });
