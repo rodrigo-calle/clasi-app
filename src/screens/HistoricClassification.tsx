@@ -15,18 +15,7 @@ import {
   CLASSIFICATION_SESSION_COLLECTION,
   USER_COLLECTION,
 } from "../contants/constants";
-
-interface ClassificationType {
-  user: DocumentReference;
-  createdAt: Timestamp;
-  finishedAt: Timestamp;
-  classifficationData: {
-    oocarpa: number;
-    tecunumanii: number;
-    psegoustrobus: number;
-  };
-  id: string;
-}
+import { ClassificationType } from "../types/firebaseTypes";
 
 const HistoricClassification = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
@@ -43,13 +32,13 @@ const HistoricClassification = () => {
         collection(db, USER_COLLECTION),
         where("email", "==", currentUser?.email)
       );
-
+      console.log({ ww: currentUser?.email });
       const querySnapshot = await getDocs(q);
       const user = querySnapshot.docs[0]?.ref;
 
       const classificationQuery = query(
         collection(db, CLASSIFICATION_SESSION_COLLECTION),
-        where(USER_COLLECTION, "==", user)
+        where('user', "==", user)
       );
 
       const classificationQuerySnapshot = await getDocs(classificationQuery);

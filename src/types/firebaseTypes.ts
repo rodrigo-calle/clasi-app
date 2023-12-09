@@ -26,3 +26,15 @@ export type SupplierInterface = {
   supplierPhone: string;
   supplierSeedOrigin: string;
 };
+
+export interface ClassificationType {
+  user: DocumentReference;
+  createdAt: Timestamp;
+  finishedAt: Timestamp;
+  classifficationData: {
+    oocarpa: number;
+    tecunumanii: number;
+    psegoustrobus: number;
+  };
+  id: string;
+}

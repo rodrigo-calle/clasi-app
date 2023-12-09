@@ -15,6 +15,7 @@ export enum IconType {
   retweet = "retweet",
   check = "check",
   play = "controller-play",
+  stop = "controller-stop",
 }
 
 export type CameraButtonProps = {

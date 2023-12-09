@@ -1,6 +1,7 @@
 import React from "react";
 import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
+import moment from "moment";
 
 import {
   Pressable,
@@ -18,6 +19,9 @@ const HistoricCard = (props: HitoricCardProps) => {
   const db = FIREBASE_DB;
 
   const getReadableDuration = (createdAt: Timestamp, finishedAt: Timestamp) => {
+    if (!finishedAt) {
+      return "En progreso";
+    }
     const duration = finishedAt.toMillis() - createdAt.toMillis();
     const minutes = Math.floor(duration / 60000);
     const seconds = ((duration % 60000) / 1000).toFixed(0);
@@ -25,7 +29,7 @@ const HistoricCard = (props: HitoricCardProps) => {
     return `${minutes}:${seconds}`;
   };
 
-  const date = new Date(createdAt.toMillis()).toLocaleString();
+  const date = moment(createdAt.toMillis()).utc().format("DD/MM/YYYY hh:mm:ss");
 
   const deleteClassification = async (code: string) => {
     try {
@@ -40,7 +44,7 @@ const HistoricCard = (props: HitoricCardProps) => {
       console.log(error);
     }
   };
-
+  
   return (
     <View style={styles.container}>
       <Pressable style={styles.pressable}>

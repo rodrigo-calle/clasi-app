@@ -169,7 +169,10 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   const classificationSessionHandler = async () => {
     setClassificationSessionState(!classificationSessionState);
 
-    const classificationCollection = collection(db, CLASSIFICATION_SESSION_COLLECTION);
+    const classificationCollection = collection(
+      db,
+      CLASSIFICATION_SESSION_COLLECTION
+    );
     if (!currentClassificationSessionId) {
       setOpenLoading(true);
       setLoadingMessage("Iniciando sesión de clasificación...");
@@ -337,7 +340,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         >
           <View style={styles.mediaButtons}>
             <CameraButton
-              icon={IconType.play}
+              icon={classificationSessionState ? IconType.stop : IconType.play}
               title=""
               color="#000"
               onPress={classificationSessionHandler}
@@ -408,52 +411,68 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
           ></TextInput>
         </View>
       </View>
-      <Text
-        style={{
-          color: "blue",
-          marginLeft: 25,
-          marginTop: 15,
-          marginBottom: 10,
-        }}
-        onPress={() =>
-          navigation.navigate("Registro de Proveedores de Semilla")
-        }
-      >
-        Registro de Proveedor de Semilla
-      </Text>
-      <Text
-        style={{
-          color: "blue",
-          marginLeft: 25,
-          marginTop: 15,
-          marginBottom: 10,
-        }}
-        onPress={() => navigation.navigate("Registro de Técnicos")}
-      >
-        Registro de Técnicos
-      </Text>
-      <Text
-        style={{
-          color: "blue",
-          marginLeft: 25,
-          marginTop: 15,
-          marginBottom: 10,
-        }}
-        onPress={() => navigation.navigate("Historial de Clasificaciónes")}
-      >
-        Historial de Clasificaciónes
-      </Text>
-      <Text
-        style={{
-          color: "blue",
-          marginLeft: 25,
-          marginTop: 15,
-          marginBottom: 10,
-        }}
-        onPress={() => navigation.navigate("Registro de Tareas")}
-      >
-        Registro y Asignación de Tareas
-      </Text>
+      {!classificationSessionState ? (
+        <View>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() =>
+              navigation.navigate("Registro de Proveedores de Semilla")
+            }
+          >
+            Registro de Proveedor de Semilla
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() => navigation.navigate("Registro de Técnicos")}
+          >
+            Registro de Técnicos
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() => navigation.navigate("Historial de Clasificaciónes")}
+          >
+            Historial de Clasificaciónes
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() => navigation.navigate("Registro de Tareas")}
+          >
+            Registro y Asignación de Tareas
+          </Text>
+        </View>
+      ) : (
+        <Text
+          style={{
+            width: 350,
+            alignSelf: "center",
+            fontWeight: "600",
+            textAlign: "center",
+          }}
+        >
+          Si Deseas Navegar a otras pantallas debes de terminar la sesión de
+          clasificación
+        </Text>
+      )}
     </ScrollView>
   );
 };
