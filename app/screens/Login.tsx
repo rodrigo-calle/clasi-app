@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: 350,
     marginBottom: 10,
-    borderBlockColor: "#C9C9C9",
+    // borderBlockColor: "#C9C9C9",
   },
   buttons: {
     marginVertical: 2,

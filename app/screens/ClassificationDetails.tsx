@@ -420,11 +420,20 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
           marginTop: 15,
           marginBottom: 10,
         }}
-        onPress={() =>
-          navigation.navigate("Registro de Técnicos")
-        }
+        onPress={() => navigation.navigate("Registro de Técnicos")}
       >
         Registro de Técnicos
+      </Text>
+      <Text
+        style={{
+          color: "blue",
+          marginLeft: 25,
+          marginTop: 15,
+          marginBottom: 10,
+        }}
+        onPress={() => navigation.navigate("Historial de Clasificaciónes")}
+      >
+        Historial de Clasificaciónes
       </Text>
     </ScrollView>
   );

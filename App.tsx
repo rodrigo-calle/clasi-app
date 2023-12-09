@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Register from "./app/screens/Register";
 import TechnicalRegister from "./app/screens/TechnicalRegister";
+import HistoricClassification from "./app/screens/HistoricClassification";
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
@@ -26,6 +27,10 @@ function InsideLayout() {
       <InsideStack.Screen
         name="Registro de Técnicos"
         component={TechnicalRegister}
+      />
+      <InsideStack.Screen
+        name="Historial de Clasificaciónes"
+        component={HistoricClassification}
       />
     </InsideStack.Navigator>
   );
