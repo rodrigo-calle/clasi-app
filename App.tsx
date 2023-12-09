@@ -9,6 +9,7 @@ import { FIREBASE_AUTH } from "./FirebaseConfig";
 import Register from "./app/screens/Register";
 import TechnicalRegister from "./app/screens/TechnicalRegister";
 import HistoricClassification from "./app/screens/HistoricClassification";
+import TaskRegister from './app/screens/TaskRegister';
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
@@ -31,6 +32,10 @@ function InsideLayout() {
       <InsideStack.Screen
         name="Historial de Clasificaciónes"
         component={HistoricClassification}
+      />
+      <InsideStack.Screen
+        name="Registro de Tareas"
+        component={TaskRegister}
       />
     </InsideStack.Navigator>
   );

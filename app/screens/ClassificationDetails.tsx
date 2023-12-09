@@ -435,6 +435,17 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       >
         Historial de Clasificaciónes
       </Text>
+      <Text
+        style={{
+          color: "blue",
+          marginLeft: 25,
+          marginTop: 15,
+          marginBottom: 10,
+        }}
+        onPress={() => navigation.navigate("Registro de Tareas")}
+      >
+        Registro y Asignación de Tareas
+      </Text>
     </ScrollView>
   );
 };
