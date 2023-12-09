@@ -9,16 +9,26 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
-import { doc, setDoc } from "firebase/firestore";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  setDoc,
+  where,
+} from "firebase/firestore";
 import { NavigationProp } from "@react-navigation/native";
 import { Image } from "expo-image";
+import { Picker } from "@react-native-picker/picker";
+import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
 
 const Register = ({ navigation }: RouterProps) => {
+  const [isTechnical, setIsTechnical] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
@@ -29,20 +39,53 @@ const Register = ({ navigation }: RouterProps) => {
   const signUp = async () => {
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      if (!isTechnical) {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
 
-      if (userCredential.user) {
-        const newDoc = doc(db, "users", userCredential.user.uid);
-        await setDoc(newDoc, {
-          email: userCredential.user.email,
-          userName: userName,
-        });
+        if (userCredential.user) {
+          const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
+          await setDoc(newDoc, {
+            email: userCredential.user.email,
+            userName: userName,
+            userType: "manager",
+          });
 
-        alert("Usuario creado correctamente");
+          alert("Usuario creado correctamente, por favor solicitar acceso");
+        }
+      } else {
+        const q = query(
+          collection(db, TECHNICAL_COLLECTION),
+          where("technicalEmail", "==", email)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.docs.length > 0) {
+          const userCredential = await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+          if (userCredential.user) {
+            const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
+            await setDoc(newDoc, {
+              email: userCredential.user.email,
+              userName: userName,
+              userType: "technical",
+            });
+
+            alert("Técnico creado correctamente");
+          }
+        } else {
+          alert(
+            "El técnico aun no se encuentra registrado por el administrador"
+          );
+        }
       }
     } catch (error) {
       alert(error);
@@ -92,6 +135,27 @@ const Register = ({ navigation }: RouterProps) => {
           autoCapitalize="none"
           onChangeText={(text) => setPassword(text)}
         ></TextInput>
+        <Text>¿Eres técnico?</Text>
+        <Picker
+          selectedValue={isTechnical}
+          onValueChange={(itemValue, itemIndex) => setIsTechnical(itemValue)}
+          style={{
+            height: 50,
+            width: 150,
+            borderWidth: 1,
+            backgroundColor: "#fff",
+          }}
+        >
+          <Picker.Item
+            label="No"
+            value={false}
+            style={{
+              borderBlockColor: "red",
+              borderWidth: 1,
+            }}
+          />
+          <Picker.Item label="Si" value={true} />
+        </Picker>
         {loading ? (
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (

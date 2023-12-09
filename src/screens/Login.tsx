@@ -8,7 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH } from "../../FirebaseConfig";
+import { FIREBASE_AUTH } from "../server/FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
 import { Image } from "expo-image";
@@ -82,7 +82,7 @@ function Login({ navigation }: RouterProps) {
         ) : (
           <>
             <Button
-              color={"#689BFF"}              
+              color={"#689BFF"}
               title="Iniciar Sesión"
               onPress={() => signIn()}
             ></Button>
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     width: 350,
     marginBottom: 10,
-    borderBlockColor: "#C9C9C9",
+    // borderBlockColor: "#C9C9C9",
   },
   buttons: {
     marginVertical: 2,

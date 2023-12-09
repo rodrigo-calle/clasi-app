@@ -1,12 +1,8 @@
 import React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View } from "react-native";
+import { LoadingProp } from "../types/props";
 
-type PropsType = {
-  text: string | undefined | null;
-  open: boolean;
-};
-
-const Loading = (props: PropsType) => {
+const Loading = (props: LoadingProp) => {
   const { text, open } = props;
   return (
     <View
@@ -38,7 +34,7 @@ const Loading = (props: PropsType) => {
             style={{
               color: "black",
               fontWeight: "bold",
-                fontSize: 20,
+              fontSize: 20,
             }}
           >
             {text ? text : "Cargando..."}

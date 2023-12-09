@@ -8,8 +8,9 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import { addDoc, collection } from "firebase/firestore";
+import { SUPPLIER_COLLECTION } from "../contants/constants";
 
 const SeedsSuplierRegister = () => {
   const [supplierName, setSupplierName] = useState<string>("");
@@ -21,7 +22,7 @@ const SeedsSuplierRegister = () => {
 
   const registerSupplierHandler = async () => {
     try {
-      const newDoc = collection(db, "suppliers");
+      const newDoc = collection(db, SUPPLIER_COLLECTION);
 
       await addDoc(newDoc, {
         supplierName: supplierName,
