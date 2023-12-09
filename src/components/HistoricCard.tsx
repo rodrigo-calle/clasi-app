@@ -1,5 +1,5 @@
 import React from "react";
-import { Timestamp, deleteDoc, doc, getDoc, query } from "firebase/firestore";
+import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
 
 import {
@@ -9,15 +9,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_DB } from "../server/FirebaseConfig";
+import { HitoricCardProps } from "../types/props";
+import { CLASSIFICATION_SESSION_COLLECTION } from "../contants/constants";
 
-type Props = {
-  code: string;
-  createdAt: Timestamp;
-  finishedAt: Timestamp;
-};
-
-const HistoricCard = (props: Props) => {
+const HistoricCard = (props: HitoricCardProps) => {
   const { code, createdAt, finishedAt } = props;
   const db = FIREBASE_DB;
 
@@ -33,7 +29,11 @@ const HistoricCard = (props: Props) => {
 
   const deleteClassification = async (code: string) => {
     try {
-      const classificationRef = doc(db, "classification_sessions", code);
+      const classificationRef = doc(
+        db,
+        CLASSIFICATION_SESSION_COLLECTION,
+        code
+      );
       await deleteDoc(classificationRef);
       alert("Clasificación eliminada correctamente");
     } catch (error) {

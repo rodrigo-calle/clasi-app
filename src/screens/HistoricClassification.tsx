@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import { ScrollView, Text } from "react-native";
 import {
   DocumentReference,
@@ -11,6 +11,10 @@ import {
 } from "firebase/firestore";
 import HistoricCard from "../components/HistoricCard";
 import Loading from "../components/Loading";
+import {
+  CLASSIFICATION_SESSION_COLLECTION,
+  USER_COLLECTION,
+} from "../contants/constants";
 
 interface ClassificationType {
   user: DocumentReference;
@@ -36,7 +40,7 @@ const HistoricClassification = () => {
     try {
       setOpenLoader(true);
       const q = query(
-        collection(db, "users"),
+        collection(db, USER_COLLECTION),
         where("email", "==", currentUser?.email)
       );
 
@@ -44,8 +48,8 @@ const HistoricClassification = () => {
       const user = querySnapshot.docs[0]?.ref;
 
       const classificationQuery = query(
-        collection(db, "classification_sessions"),
-        where("user", "==", user)
+        collection(db, CLASSIFICATION_SESSION_COLLECTION),
+        where(USER_COLLECTION, "==", user)
       );
 
       const classificationQuerySnapshot = await getDocs(classificationQuery);

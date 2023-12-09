@@ -9,7 +9,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
+import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
 
 const TechnicalRegister = () => {
   const [technicalName, setTechnicalName] = useState<string>("");
@@ -19,10 +20,10 @@ const TechnicalRegister = () => {
 
   const registerTechnical = async () => {
     try {
-      const newDoc = collection(db, "technicals");
+      const newDoc = collection(db, TECHNICAL_COLLECTION);
 
       const q = query(
-        collection(db, "users"),
+        collection(db, USER_COLLECTION),
         where("email", "==", currentUser?.email)
       );
       const querySnapshot = await getDocs(q);

@@ -10,35 +10,20 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import Loading from "../components/Loading";
-
-interface TechnicalInterface {
-  technicalEmail: string;
-  createdBy: string;
-  technicalName: string;
-}
-
-interface TaskInterface {
-  taskNote: string | null;
-  technicalReference: DocumentReference | null;
-  createdAt: Timestamp;
-  createdBy: DocumentReference;
-  providerReference: DocumentReference | null;
-}
-
-type FormData = {
-  thecnical: string;
-  provider: string;
-  taskNote: string;
-};
-
-type SupplierInterface = {
-  supplierHarvestMethod: string;
-  supplierName: string;
-  supplierPhone: string;
-  supplierSeedOrigin: string;
-};
+import {
+  SupplierInterface,
+  TaskFormData,
+  TaskInterface,
+  TechnicalInterface,
+} from "../types/firebaseTypes";
+import {
+  SUPPLIER_COLLECTION,
+  TASK_COLLECTION,
+  TECHNICAL_COLLECTION,
+  USER_COLLECTION,
+} from "../contants/constants";
 
 const TaskRegister = () => {
   const db = FIREBASE_DB;
@@ -48,7 +33,7 @@ const TaskRegister = () => {
   const [currentUserRef, setCurrentUserRef] = useState<DocumentReference>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [formData, setFormData] = useState<FormData>({
+  const [formData, setFormData] = useState<TaskFormData>({
     thecnical: "",
     provider: "",
     taskNote: "",
@@ -56,7 +41,7 @@ const TaskRegister = () => {
 
   const getTechnicals = async () => {
     const q = query(
-      collection(db, "technicals"),
+      collection(db, TECHNICAL_COLLECTION),
       where("createdBy", "==", currentUser?.email)
     );
 
@@ -70,7 +55,7 @@ const TaskRegister = () => {
   };
 
   const getProviders = async () => {
-    const querySnapshot = await getDocs(collection(db, "suppliers"));
+    const querySnapshot = await getDocs(collection(db, SUPPLIER_COLLECTION));
 
     const docs = querySnapshot.docs.map(
       (doc) => doc.data() as SupplierInterface
@@ -81,7 +66,7 @@ const TaskRegister = () => {
 
   const getCurrentUserReference = async () => {
     const q = query(
-      collection(db, "users"),
+      collection(db, USER_COLLECTION),
       where("email", "==", currentUser?.email)
     );
 
@@ -100,7 +85,7 @@ const TaskRegister = () => {
 
   const getTechnicalRef = async (technicalEmail: string) => {
     const q = query(
-      collection(db, "technicals"),
+      collection(db, TECHNICAL_COLLECTION),
       where("technicalEmail", "==", technicalEmail)
     );
 
@@ -113,7 +98,7 @@ const TaskRegister = () => {
 
   const getProviderRef = async (supplierName: string) => {
     const q = query(
-      collection(db, "suppliers"),
+      collection(db, SUPPLIER_COLLECTION),
       where("supplierName", "==", supplierName)
     );
 
@@ -141,7 +126,7 @@ const TaskRegister = () => {
         providerRef = await getProviderRef(supplierName);
       }
 
-      const newDoc = collection(db, "tasks");
+      const newDoc = collection(db, TASK_COLLECTION);
 
       const task: TaskInterface = {
         taskNote: formData.taskNote,

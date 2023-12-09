@@ -9,10 +9,10 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import { Camera, CameraCapturedPicture } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
-import CameraButton, { IconType } from "../components/Button";
+import CameraButton from "../components/Button";
 import { getSeedClassification } from "../services/classification";
 import {
   Timestamp,
@@ -26,6 +26,11 @@ import {
 } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
 import Loading from "../components/Loading";
+import { IconType } from "../types/props";
+import {
+  CLASSIFICATION_SESSION_COLLECTION,
+  USER_COLLECTION,
+} from "../contants/constants";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -105,7 +110,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         if (response.data.class === "oocarpa") {
           const sessionRef = doc(
             db,
-            "classification_sessions",
+            CLASSIFICATION_SESSION_COLLECTION,
             currentClassificationSessionId!
           );
           setClassificationDataValues((prev) => ({
@@ -122,7 +127,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         if (response.data.class === "psegoutrobus") {
           const sessionRef = doc(
             db,
-            "classification_sessions",
+            CLASSIFICATION_SESSION_COLLECTION,
             currentClassificationSessionId!
           );
           setClassificationDataValues((prev) => ({
@@ -139,7 +144,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         if (response.data.class === "tecunumanii") {
           const sessionRef = doc(
             db,
-            "classification_sessions",
+            CLASSIFICATION_SESSION_COLLECTION,
             currentClassificationSessionId!
           );
           setClassificationDataValues((prev) => ({
@@ -164,12 +169,15 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   const classificationSessionHandler = async () => {
     setClassificationSessionState(!classificationSessionState);
 
-    const classificationCollection = collection(db, "classification_sessions");
+    const classificationCollection = collection(db, CLASSIFICATION_SESSION_COLLECTION);
     if (!currentClassificationSessionId) {
       setOpenLoading(true);
       setLoadingMessage("Iniciando sesión de clasificación...");
       const user = auth?.currentUser?.email;
-      const q = query(collection(db, "users"), where("email", "==", user));
+      const q = query(
+        collection(db, USER_COLLECTION),
+        where("email", "==", user)
+      );
       const usersResult = await getDocs(q);
 
       const userRef = usersResult.docs[0].ref;
@@ -191,7 +199,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       setLoadingMessage("Finalizando y guardando sesión de clasificación...");
       const sessionRef = doc(
         db,
-        "classification_sessions",
+        CLASSIFICATION_SESSION_COLLECTION,
         currentClassificationSessionId!
       );
 

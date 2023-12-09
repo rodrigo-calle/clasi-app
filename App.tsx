@@ -1,15 +1,15 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import Login from "./app/screens/Login";
-import ClassificationDetails from "./app/screens/ClassificationDetails";
-import SeedsSuplierRegister from "./app/screens/SeedsSuplierRegister";
+import Login from "./src/screens/Login";
+import ClassificationDetails from "./src/screens/ClassificationDetails";
+import SeedsSuplierRegister from "./src/screens/SeedsSuplierRegister";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
-import { FIREBASE_AUTH } from "./FirebaseConfig";
-import Register from "./app/screens/Register";
-import TechnicalRegister from "./app/screens/TechnicalRegister";
-import HistoricClassification from "./app/screens/HistoricClassification";
-import TaskRegister from './app/screens/TaskRegister';
+import { FIREBASE_AUTH } from "./src/server/FirebaseConfig";
+import Register from "./src/screens/Register";
+import TechnicalRegister from "./src/screens/TechnicalRegister";
+import HistoricClassification from "./src/screens/HistoricClassification";
+import TaskRegister from "./src/screens/TaskRegister";
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
@@ -33,10 +33,7 @@ function InsideLayout() {
         name="Historial de Clasificaciónes"
         component={HistoricClassification}
       />
-      <InsideStack.Screen
-        name="Registro de Tareas"
-        component={TaskRegister}
-      />
+      <InsideStack.Screen name="Registro de Tareas" component={TaskRegister} />
     </InsideStack.Navigator>
   );
 }

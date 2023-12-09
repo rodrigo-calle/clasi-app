@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../../FirebaseConfig";
+import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import {
   collection,
   doc,
@@ -21,6 +21,7 @@ import {
 import { NavigationProp } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { Picker } from "@react-native-picker/picker";
+import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -46,7 +47,7 @@ const Register = ({ navigation }: RouterProps) => {
         );
 
         if (userCredential.user) {
-          const newDoc = doc(db, "users", userCredential.user.uid);
+          const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
           await setDoc(newDoc, {
             email: userCredential.user.email,
             userName: userName,
@@ -57,7 +58,7 @@ const Register = ({ navigation }: RouterProps) => {
         }
       } else {
         const q = query(
-          collection(db, "technicals"),
+          collection(db, TECHNICAL_COLLECTION),
           where("technicalEmail", "==", email)
         );
 
@@ -71,7 +72,7 @@ const Register = ({ navigation }: RouterProps) => {
           );
 
           if (userCredential.user) {
-            const newDoc = doc(db, "users", userCredential.user.uid);
+            const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
             await setDoc(newDoc, {
               email: userCredential.user.email,
               userName: userName,
