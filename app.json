@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/seed.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.rodcode98.clasiapp"
     },
     "web": {
       "favicon": "./src/assets/images/seed.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "ef18cb80-260a-4eea-8274-27ff9b34eedd"
+      }
     }
   }
 }
