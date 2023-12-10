@@ -32,13 +32,12 @@ const HistoricClassification = () => {
         collection(db, USER_COLLECTION),
         where("email", "==", currentUser?.email)
       );
-      console.log({ ww: currentUser?.email });
       const querySnapshot = await getDocs(q);
       const user = querySnapshot.docs[0]?.ref;
 
       const classificationQuery = query(
         collection(db, CLASSIFICATION_SESSION_COLLECTION),
-        where('user', "==", user)
+        where("user", "==", user)
       );
 
       const classificationQuerySnapshot = await getDocs(classificationQuery);

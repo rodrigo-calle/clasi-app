@@ -12,6 +12,7 @@ import { FIREBASE_AUTH } from "../server/FirebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NavigationProp } from "@react-navigation/native";
 import { Image } from "expo-image";
+import { isEmail } from "../utils/validation";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -24,15 +25,20 @@ function Login({ navigation }: RouterProps) {
   const auth = FIREBASE_AUTH;
 
   const signIn = async () => {
+    if (!email || !password) {
+      alert("Debe ingresar un correo y contraseña");
+      return;
+    }
+    if (!isEmail(email)) {
+      alert("Debe ingresar un correo valido");
+      return;
+    }
+
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-      console.log(error);
+      alert("Correo o contraseña incorrecta");
     }
     setLoading(false);
   };

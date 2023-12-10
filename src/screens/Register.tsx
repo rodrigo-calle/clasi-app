@@ -22,6 +22,7 @@ import { NavigationProp } from "@react-navigation/native";
 import { Image } from "expo-image";
 import { Picker } from "@react-native-picker/picker";
 import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
+import { isEmail } from "../utils/validation";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -37,6 +38,26 @@ const Register = ({ navigation }: RouterProps) => {
   const db = FIREBASE_DB;
 
   const signUp = async () => {
+    if (!email || !password || !userName) {
+      alert("Debe ingresar un correo, contraseña y nombre de usuario");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    if (userName.length < 6) {
+      alert("El nombre de usuario debe tener al menos 6 caracteres");
+      return;
+    }
+
+    if (!isEmail(email)) {
+      alert("Debe ingresar un correo valido");
+      return;
+    }
+    
     setLoading(true);
     try {
       if (!isTechnical) {

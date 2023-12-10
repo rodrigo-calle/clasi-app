@@ -39,12 +39,13 @@ const HistoricCard = (props: HitoricCardProps) => {
         code
       );
       await deleteDoc(classificationRef);
+
       alert("Clasificación eliminada correctamente");
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   return (
     <View style={styles.container}>
       <Pressable style={styles.pressable}>

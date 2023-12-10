@@ -9,8 +9,8 @@ import {
   View,
 } from "react-native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
-import { addDoc, collection } from "firebase/firestore";
-import { SUPPLIER_COLLECTION } from "../contants/constants";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { SUPPLIER_COLLECTION, USER_COLLECTION } from "../contants/constants";
 
 const SeedsSuplierRegister = () => {
   const [supplierName, setSupplierName] = useState<string>("");
@@ -19,16 +19,37 @@ const SeedsSuplierRegister = () => {
   const [supplierHarvestMethod, setSupplierHarvestMethod] =
     useState<string>("");
   const db = FIREBASE_DB;
+  const auth = FIREBASE_AUTH;
 
   const registerSupplierHandler = async () => {
+    if (
+      !supplierName ||
+      !supplierPhone ||
+      !supplierSeedOrigin ||
+      !supplierHarvestMethod
+    ) {
+      alert("Debe ingresar todos los campos");
+      return;
+    }
     try {
       const newDoc = collection(db, SUPPLIER_COLLECTION);
+      const currentUser = auth.currentUser;
+
+      const q = query(
+        collection(db, USER_COLLECTION),
+        where("email", "==", currentUser?.email)
+      )
+
+      const querySnapshot = await getDocs(q);
+
+      const user = querySnapshot.docs[0]?.ref;
 
       await addDoc(newDoc, {
         supplierName: supplierName,
         supplierPhone: supplierPhone,
         supplierSeedOrigin: supplierSeedOrigin,
         supplierHarvestMethod: supplierHarvestMethod,
+        createdBy: user
       });
 
       alert("Proveedor registrado correctamente");
