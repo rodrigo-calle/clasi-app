@@ -1,0 +1,28 @@
+{
+    "build": {
+        "preview": {
+            "android": {
+                "buildType": "apk"
+            },
+            "env": {
+                "EXPO_PUBLIC_SEED_CLASSIFICATION_API_URL": "http://localhost:8000/predict/",
+                "EXPO_PUBLIC_FIREBASE_API_KEY": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_APP_ID": "key_asdasdasdas",
+                "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "key_asdasdasdas"
+            }
+        },
+        "preview2": {
+            "android": {
+                "gradleCommand": ":app:assembleRelease"
+            }
+        },
+        "preview3": {
+            "developmentClient": true
+        },
+        "production": {}
+    }
+}

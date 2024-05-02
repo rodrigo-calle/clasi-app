@@ -31,6 +31,7 @@ import {
   CLASSIFICATION_SESSION_COLLECTION,
   USER_COLLECTION,
 } from "../contants/constants";
+import { updateSeedCounterHandler } from "../handlers/classification";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -105,58 +106,21 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     try {
       setOpenLoading(true);
       setLoadingMessage("Clasificando semilla...");
-      const response = await getSeedClassification(imageData!);
-      if (response.status === 200) {
-        if (response.data.class === "oocarpa") {
-          const sessionRef = doc(
-            db,
-            CLASSIFICATION_SESSION_COLLECTION,
-            currentClassificationSessionId!
-          );
-          setClassificationDataValues((prev) => ({
-            ...prev,
-            oocarpa: prev.oocarpa + 1,
-          }));
+      const classificationResponse = await getSeedClassification(imageData!);
+      if (classificationResponse.status === 200) {
+        const classificationData = classificationResponse.data;
+        const classificationUpdated = await updateSeedCounterHandler(
+          classificationData.class,
+          currentClassificationSessionId
+        );
 
-          await updateDoc(sessionRef, {
-            classificationData: classificationDataValues,
-          });
-          alert("Semilla clasificada como Oocarpa");
+        if (!classificationUpdated) {
+          return alert("Error al clasificar la semilla");
         }
 
-        if (response.data.class === "psegoutrobus") {
-          const sessionRef = doc(
-            db,
-            CLASSIFICATION_SESSION_COLLECTION,
-            currentClassificationSessionId!
-          );
-          setClassificationDataValues((prev) => ({
-            ...prev,
-            psegoustrobus: prev.psegoustrobus + 1,
-          }));
-
-          await updateDoc(sessionRef, {
-            classificationData: classificationDataValues,
-          });
-          alert("Semilla clasificada como Psegoustrobus");
-        }
-
-        if (response.data.class === "tecunumanii") {
-          const sessionRef = doc(
-            db,
-            CLASSIFICATION_SESSION_COLLECTION,
-            currentClassificationSessionId!
-          );
-          setClassificationDataValues((prev) => ({
-            ...prev,
-            tecunumanii: prev.tecunumanii + 1,
-          }));
-
-          await updateDoc(sessionRef, {
-            classificationData: classificationDataValues,
-          });
-          alert("Semilla clasificada como Tecunumanii");
-        }
+        alert(
+          ` Semilla clasificada como ${classificationData.class} con una probabilidad de ${classificationData.confidence}`
+        );
       }
       setImage(null);
       setImageData(undefined);

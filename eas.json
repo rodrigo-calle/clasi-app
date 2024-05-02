@@ -5,14 +5,14 @@
                 "buildType": "apk"
             },
             "env": {
-                "EXPO_PUBLIC_SEED_CLASSIFICATION_API_URL": "https://us-central1-pine-seeds-classification.cloudfunctions.net/predict",
-                "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyALHSAUeF167_b7mY09GSQ6cYHGUDE4w6Y",
-                "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "pine-seeds-classification.firebaseapp.com",
-                "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "pine-seeds-classification",
-                "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "pine-seeds-classification.appspot.com",
-                "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "637440498823",
-                "EXPO_PUBLIC_FIREBASE_APP_ID": "1:637440498823:web:524a48875395c385f46c22",
-                "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-W778DYXQBX"
+                "EXPO_PUBLIC_SEED_CLASSIFICATION_API_URL": "https://seeds-classifier-apiuvicorn-main-app.onrender.com/predict/",
+                "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyC2iDAWP3TKe38jB2wPgr0yG-9GPJeVP3I",
+                "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "classi-app-6c985.firebaseapp.com",
+                "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "classi-app-6c985",
+                "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "classi-app-6c985.appspot.com",
+                "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "850432019289",
+                "EXPO_PUBLIC_FIREBASE_APP_ID": "1:850432019289:web:b1b0f290397cca22a1da48",
+                "EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID": "G-K1MC507V0K"
             }
         },
         "preview2": {
