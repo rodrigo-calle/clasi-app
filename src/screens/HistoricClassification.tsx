@@ -16,6 +16,7 @@ import {
   USER_COLLECTION,
 } from "../contants/constants";
 import { ClassificationType } from "../types/firebaseTypes";
+import { getClassificationsHandler } from "../handlers/classification";
 
 const HistoricClassification = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
@@ -28,35 +29,37 @@ const HistoricClassification = () => {
   const getClassificationListByUser = async () => {
     try {
       setOpenLoader(true);
-      const q = query(
-        collection(db, USER_COLLECTION),
-        where("email", "==", currentUser?.email)
-      );
-      const querySnapshot = await getDocs(q);
-      const user = querySnapshot.docs[0]?.ref;
+      const classificationsListFromQuery = await getClassificationsHandler();
+      // const q = query(
+      //   collection(db, USER_COLLECTION),
+      //   where("email", "==", currentUser?.email)
+      // );
+      // const querySnapshot = await getDocs(q);
+      // const user = querySnapshot.docs[0]?.ref;
 
-      const classificationQuery = query(
-        collection(db, CLASSIFICATION_SESSION_COLLECTION),
-        where("user", "==", user)
-      );
+      // const classificationQuery = query(
+      //   collection(db, CLASSIFICATION_SESSION_COLLECTION),
+      //   where("user", "==", user)
+      // );
 
-      const classificationQuerySnapshot = await getDocs(classificationQuery);
+      // const classificationQuerySnapshot = await getDocs(classificationQuery);
 
-      if (!classificationQuerySnapshot.empty) {
-        const classificationList: ClassificationType[] = [];
+      // if (!classificationQuerySnapshot.empty) {
+      //   const classificationList: ClassificationType[] = [];
 
-        classificationQuerySnapshot.forEach((doc) => {
-          classificationList.push({
-            user: doc.data().user,
-            createdAt: doc.data().createdAt,
-            finishedAt: doc.data().finishedAt,
-            classifficationData: doc.data().classifficationData,
-            id: doc.id,
-          });
-        });
+      //   classificationQuerySnapshot.forEach((doc) => {
+      //     classificationList.push({
+      //       user: doc.data().user,
+      //       createdAt: doc.data().createdAt,
+      //       finishedAt: doc.data().finishedAt,
+      //       classificationData: doc.data().classifficationData,
+      //       id: doc.id,
+      //     });
+      //   });
 
-        setClassificationList(classificationList);
-      }
+      //   setClassificationList(classificationList);
+      // }
+      setClassificationList(classificationsListFromQuery);
       setOpenLoader(false);
     } catch (error) {
       alert(error);
@@ -92,9 +95,13 @@ const HistoricClassification = () => {
           return (
             <HistoricCard
               key={index}
-              code={classification.id}
+              code={classification.id ?? ""}
               createdAt={classification.createdAt}
-              finishedAt={classification.finishedAt}
+              finishedAt={
+                !classification.finishedAt
+                  ? null
+                  : classification.finishedAt
+              }
             />
           );
         })

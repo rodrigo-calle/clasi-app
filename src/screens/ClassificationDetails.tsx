@@ -16,22 +16,20 @@ import CameraButton from "../components/Button";
 import { getSeedClassification } from "../services/classification";
 import {
   Timestamp,
-  addDoc,
   collection,
-  doc,
   getDocs,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
 import Loading from "../components/Loading";
 import { IconType } from "../types/props";
+import { USER_COLLECTION } from "../contants/constants";
 import {
-  CLASSIFICATION_SESSION_COLLECTION,
-  USER_COLLECTION,
-} from "../contants/constants";
-import { updateSeedCounterHandler } from "../handlers/classification";
+  createSeedClassificationHandler,
+  endSeedClassificationSessionHandler,
+  updateSeedCounterHandler,
+} from "../handlers/classification";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -109,14 +107,25 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       const classificationResponse = await getSeedClassification(imageData!);
       if (classificationResponse.status === 200) {
         const classificationData = classificationResponse.data;
+        console.log({ classificationData });
         const classificationUpdated = await updateSeedCounterHandler(
           classificationData.class,
           currentClassificationSessionId
         );
 
+        console.log({ classificationUpdated });
+
         if (!classificationUpdated) {
-          return alert("Error al clasificar la semilla");
+          alert("Error al clasificar la semilla");
+          setOpenLoading(false);
+          return;
         }
+
+        setClassificationDataValues({
+          tecunumanii: classificationUpdated.tecunumanii,
+          oocarpa: classificationUpdated.oocarpa,
+          psegoustrobus: classificationUpdated.psegoustrobus,
+        });
 
         alert(
           ` Semilla clasificada como ${classificationData.class} con una probabilidad de ${classificationData.confidence}`
@@ -132,11 +141,6 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
 
   const classificationSessionHandler = async () => {
     setClassificationSessionState(!classificationSessionState);
-
-    const classificationCollection = collection(
-      db,
-      CLASSIFICATION_SESSION_COLLECTION
-    );
     if (!currentClassificationSessionId) {
       setOpenLoading(true);
       setLoadingMessage("Iniciando sesión de clasificación...");
@@ -149,12 +153,18 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
 
       const userRef = usersResult.docs[0].ref;
 
-      const newSession = await addDoc(classificationCollection, {
-        user: userRef,
+      const newSession = await createSeedClassificationHandler({
+        user: userRef.id,
         classificationData: classificationDataValues,
-        createdAt: Timestamp.now(),
+        createdAt: Timestamp.now().toMillis(),
         finishedAt: null,
       });
+
+      if (!newSession || !newSession.id) {
+        alert("Error al iniciar la sesión de clasificación");
+        setOpenLoading(false);
+        return;
+      }
 
       setCurrentClassificationSessionId(newSession.id);
       setImage(null);
@@ -164,15 +174,8 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     } else {
       setOpenLoading(true);
       setLoadingMessage("Finalizando y guardando sesión de clasificación...");
-      const sessionRef = doc(
-        db,
-        CLASSIFICATION_SESSION_COLLECTION,
-        currentClassificationSessionId!
-      );
-
-      await updateDoc(sessionRef, {
-        finishedAt: Timestamp.now(),
-      });
+    
+      await endSeedClassificationSessionHandler(currentClassificationSessionId);
 
       setCurrentClassificationSessionId(null);
 

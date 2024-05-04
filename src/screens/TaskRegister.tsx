@@ -39,10 +39,11 @@ const TaskRegister = () => {
     taskNote: "",
   });
 
+  console.log({ technicals });
   const getTechnicals = async () => {
     const q = query(
-      collection(db, TECHNICAL_COLLECTION),
-      where("createdBy", "==", currentUser?.email)
+      collection(db, USER_COLLECTION),
+      where("userType", "==", "technical")
     );
 
     const querySnapshot = await getDocs(q);
@@ -85,8 +86,8 @@ const TaskRegister = () => {
 
   const getTechnicalRef = async (technicalEmail: string) => {
     const q = query(
-      collection(db, TECHNICAL_COLLECTION),
-      where("technicalEmail", "==", technicalEmail)
+      collection(db, USER_COLLECTION),
+      where("userType", "==", "technical")
     );
 
     const querySnapshot = await getDocs(q);
@@ -181,12 +182,12 @@ const TaskRegister = () => {
           placeholder="Seleccionar técnico..."
           style={styles.picker}
         >
-          {technicals?.map((technical: TechnicalInterface, index) => {
+          {technicals?.map((technical, index) => {
             return (
               <Picker.Item
                 key={index}
-                label={technical.technicalName}
-                value={technical.technicalEmail}
+                label={technical.userName}
+                value={technical.email}
               />
             );
           })}

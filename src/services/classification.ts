@@ -50,10 +50,26 @@ export const updateSeedClassification = async (
     | Partial<ClassificationV2>
     | { classificationData: { [key: string]: number } }
 ) => {
-  const response = await axios.put(
+  const response = await axios.patch(
     `${API_BASE_URL}/classifications/${id}`,
     classification
   );
 
   return response;
+};
+
+export const createSeedClassification = async (
+  classification: ClassificationType
+) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/classifications`,
+    classification
+  );
+
+  return response;
+};
+
+export const getSeedsClassification = async () => {
+  const response = await axios.get(`${API_BASE_URL}/classifications`);
+  return response.data as ClassificationType[];
 };

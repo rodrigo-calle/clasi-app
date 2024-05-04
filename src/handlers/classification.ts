@@ -1,8 +1,11 @@
+import { Timestamp } from "firebase/firestore";
 import {
+  createSeedClassification,
   getSeedClassificationById,
+  getSeedsClassification,
   updateSeedClassification,
 } from "../services/classification";
-import { SeedsVarieties } from "../types/firebaseTypes";
+import { ClassificationType, SeedsVarieties } from "../types/firebaseTypes";
 
 export const getSeedClassificationByIdHandler = async (id: string) => {
   const seedClassification = await getSeedClassificationById(id);
@@ -13,7 +16,11 @@ export const getSeedClassificationByIdHandler = async (id: string) => {
 export const getSeedCurrentQuantityHandler = async (
   id: string,
   typeClassified: string
-): Promise<number | null> => {
+): Promise<{
+  oocarpa: number;
+  tecunumanii: number;
+  psegoustrobus: number;
+} | null> => {
   const seedClassification = await getSeedClassificationById(id);
 
   if (!seedClassification) {
@@ -21,13 +28,26 @@ export const getSeedCurrentQuantityHandler = async (
   }
 
   if (typeClassified === SeedsVarieties.OOCARPA) {
-    return seedClassification.classifficationData.oocarpa;
+    return {
+      oocarpa: seedClassification.classificationData.oocarpa + 1,
+      tecunumanii: seedClassification.classificationData.tecunumanii,
+      psegoustrobus: seedClassification.classificationData.psegoustrobus,
+    };
   }
   if (typeClassified === SeedsVarieties.TECUNUMANII) {
-    return seedClassification.classifficationData.tecunumanii;
+    return {
+      oocarpa: seedClassification.classificationData.oocarpa,
+      tecunumanii: seedClassification.classificationData.tecunumanii + 1,
+      psegoustrobus: seedClassification.classificationData.psegoustrobus,
+    };
   }
-  if (typeClassified === SeedsVarieties.PSEGOUSTROBUS) {
-    return seedClassification.classifficationData.psegoustrobus;
+
+  if (typeClassified === "psegoutrobus") {
+    return {
+      oocarpa: seedClassification.classificationData.oocarpa,
+      tecunumanii: seedClassification.classificationData.tecunumanii,
+      psegoustrobus: seedClassification.classificationData.psegoustrobus + 1,
+    };
   }
 
   return null;
@@ -36,13 +56,18 @@ export const getSeedCurrentQuantityHandler = async (
 export const updateSeedCounterHandler = async (
   typeClassified: string,
   classificationDocId: string
-) => {
+): Promise<{
+  oocarpa: number;
+  tecunumanii: number;
+  psegoustrobus: number;
+} | null> => {
+  console.log({ typeClassified, classificationDocId });
   const currentSeedQuantity = await getSeedCurrentQuantityHandler(
     classificationDocId,
     typeClassified
   );
-
-  if (!currentSeedQuantity) {
+  console.log({ currentSeedQuantity });
+  if (currentSeedQuantity == null) {
     return null;
   }
 
@@ -50,10 +75,48 @@ export const updateSeedCounterHandler = async (
     classificationDocId,
     {
       classificationData: {
-        [typeClassified]: currentSeedQuantity + 1,
+        oocarpa: currentSeedQuantity.oocarpa,
+        tecunumanii: currentSeedQuantity.tecunumanii,
+        psegoustrobus: currentSeedQuantity.psegoustrobus,
       },
     }
   );
 
-  return seedClassifiedSession;
+  console.log({ "IJAFOFADFDA:": seedClassifiedSession.data });
+  return seedClassifiedSession.data.classificationData;
+};
+
+export const createSeedClassificationHandler = async (
+  classificationData: ClassificationType
+) => {
+  console.log({ classificationData });
+  const seedClassification = await createSeedClassification(classificationData);
+  if (seedClassification.status !== 200) {
+    return null;
+  }
+
+  return seedClassification.data;
+};
+
+export const endSeedClassificationSessionHandler = async (id: string) => {
+  const seedClassification = await getSeedClassificationById(id);
+
+  if (!seedClassification) {
+    return null;
+  }
+
+  const seedClassificationSession = await updateSeedClassification(id, {
+    finishedAt: Timestamp.now().toMillis(),
+  });
+
+  if (seedClassificationSession.status !== 200) {
+    return null;
+  }
+
+  return seedClassificationSession.data as ClassificationType;
+};
+
+export const getClassificationsHandler = async () => {
+  const classifications = await getSeedsClassification();
+  return classifications;
 };

@@ -28,15 +28,15 @@ export type SupplierInterface = {
 };
 
 export interface ClassificationType {
-  user: DocumentReference;
-  createdAt: Timestamp;
-  finishedAt: Timestamp;
-  classifficationData: {
+  user: string;
+  createdAt: number;
+  finishedAt: number | null;
+  classificationData: {
     oocarpa: number;
     tecunumanii: number;
     psegoustrobus: number;
   };
-  id: string;
+  id?: string;
 }
 
 export interface ClassificationV2 {
@@ -45,14 +45,14 @@ export interface ClassificationV2 {
     userName: string;
     userType: string;
   };
-  createdAt: Timestamp;
-  finishedAt: Timestamp;
+  createdAt: number;
+  finishedAt: number;
   classificationData: {
     oocarpa: number;
     tecunumanii: number;
     psegoustrobus: number;
   };
-  // id: string;
+  // id?: string;
 }
 
 export enum SeedsVarieties {
