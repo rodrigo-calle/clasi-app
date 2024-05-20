@@ -1,5 +1,5 @@
 import { NavigationProp } from "@react-navigation/native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { LegacyRef, useEffect, useRef, useState } from "react";
 import {
   Button,
   Image,
@@ -9,8 +9,14 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { captureRef } from "react-native-view-shot";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
-import { Camera, CameraCapturedPicture } from "expo-camera";
+import {
+  Camera,
+  CameraCapturedPicture,
+  CameraView,
+  CameraViewRef,
+} from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton from "../components/Button";
 import { getSeedClassification } from "../services/classification";
@@ -26,14 +32,17 @@ import Loading from "../components/Loading";
 import { IconType } from "../types/props";
 import { USER_COLLECTION } from "../contants/constants";
 import {
-  createSeedClassificationHandler,
   endSeedClassificationSessionHandler,
   updateSeedCounterHandler,
-} from "../handlers/classification";
+} from "../handlers/classifications/classification";
+import { createSeedClassificationHandler } from "../handlers/classifications/createClassification";
+import { CreateClassification } from "../types/classifications/types";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
+
+type CameraRefType = React.LegacyRef<CameraView> | undefined;
 
 const ClassificationDetails = ({ navigation }: RouterProps) => {
   const [hasPermission, setHasPermission] = React.useState<boolean>(false);
@@ -56,7 +65,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   const db = FIREBASE_DB;
   const auth = FIREBASE_AUTH;
 
-  const cameraRef = useRef<Camera>(null);
+  const cameraRef = useRef<CameraRefType>(null);
 
   useEffect(() => {
     (async () => {
@@ -85,6 +94,8 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         if (data && data.uri) {
           setImageData(data);
           setImage(data.uri);
+
+          console.log({ data, imageData });
         }
       } catch (error) {
         console.log({ error });
@@ -105,6 +116,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       setOpenLoading(true);
       setLoadingMessage("Clasificando semilla...");
       const classificationResponse = await getSeedClassification(imageData!);
+      console.log({ classificationResponse });
       if (classificationResponse.status === 200) {
         const classificationData = classificationResponse.data;
         console.log({ classificationData });
@@ -153,12 +165,22 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
 
       const userRef = usersResult.docs[0].ref;
 
-      const newSession = await createSeedClassificationHandler({
-        user: userRef.id,
-        classificationData: classificationDataValues,
-        createdAt: Timestamp.now().toMillis(),
+      const newClassificationDataValues: CreateClassification = {
+        businessId: "vivero-santo-domingo",
+        classificationData: {
+          oocarpa: 0,
+          psegoustrobus: 0,
+          tecunumanii: 0,
+        },
+        startedAt: Timestamp.now().toMillis(),
         finishedAt: null,
-      });
+        task: null,
+        userId: userRef.id,
+      };
+
+      const newSession = await createSeedClassificationHandler(
+        newClassificationDataValues
+      );
 
       if (!newSession || !newSession.id) {
         alert("Error al iniciar la sesión de clasificación");
@@ -174,7 +196,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
     } else {
       setOpenLoading(true);
       setLoadingMessage("Finalizando y guardando sesión de clasificación...");
-    
+
       await endSeedClassificationSessionHandler(currentClassificationSessionId);
 
       setCurrentClassificationSessionId(null);
@@ -190,6 +212,8 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       alert("Sesión de clasificación terminada");
     }
   };
+
+  console.log({ cameraRef });
 
   return (
     <ScrollView scrollEnabled={!openLoading}>
@@ -273,16 +297,26 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
           </View>
         )}
         {!image ? (
-          <Camera
-            ref={cameraRef}
+          <CameraView
+            ref={cameraRef as LegacyRef<CameraView>}
+            mode="picture"
             style={{
               flex: 1,
               borderRadius: 10,
             }}
-            type={Camera.Constants.Type.back}
-            flashMode={Camera.Constants.FlashMode.off}
-          ></Camera>
+            // type={Camera.Constants.Type.back}
+            // flashMode={Camera.Constants.FlashMode.off}
+          ></CameraView>
         ) : (
+          // <Camera
+          //   ref={cameraRef}
+          //   style={{
+          //     flex: 1,
+          //     borderRadius: 10,
+          //   }}
+          //   type={Camera.Constants.Type.back}
+          //   flashMode={Camera.Constants.FlashMode.off}
+          // ></Camera>
           <Image
             source={{ uri: image }}
             style={{ flex: 1, borderRadius: 10 }}

@@ -9,11 +9,12 @@ import {
   View,
 } from "react-native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { SUPPLIER_COLLECTION, USER_COLLECTION } from "../contants/constants";
+import { createSupplierHandler } from "../handlers/suppliers/createSupplier";
 
 const SeedsSuplierRegister = () => {
   const [supplierName, setSupplierName] = useState<string>("");
+  const [supplierAddress, setSupplierAddress] = useState<string>("");
+  const [supplierEmail, setSupplierEmail] = useState<string>("");
   const [supplierPhone, setSupplierPhone] = useState<string>("");
   const [supplierSeedOrigin, setSupplierSeedOrigin] = useState<string>("");
   const [supplierHarvestMethod, setSupplierHarvestMethod] =
@@ -32,24 +33,13 @@ const SeedsSuplierRegister = () => {
       return;
     }
     try {
-      const newDoc = collection(db, SUPPLIER_COLLECTION);
-      const currentUser = auth.currentUser;
-
-      const q = query(
-        collection(db, USER_COLLECTION),
-        where("email", "==", currentUser?.email)
-      )
-
-      const querySnapshot = await getDocs(q);
-
-      const user = querySnapshot.docs[0]?.ref;
-
-      await addDoc(newDoc, {
-        supplierName: supplierName,
-        supplierPhone: supplierPhone,
-        supplierSeedOrigin: supplierSeedOrigin,
-        supplierHarvestMethod: supplierHarvestMethod,
-        createdBy: user
+      createSupplierHandler({
+        address: supplierAddress,
+        email: supplierEmail,
+        name: supplierName,
+        harvestMethod: supplierHarvestMethod,
+        phone: supplierPhone,
+        seedOrigin: supplierSeedOrigin,
       });
 
       alert("Proveedor registrado correctamente");
@@ -58,6 +48,8 @@ const SeedsSuplierRegister = () => {
       setSupplierPhone("");
       setSupplierSeedOrigin("");
       setSupplierHarvestMethod("");
+      setSupplierEmail("");
+      setSupplierAddress("");
     } catch (error) {
       alert(error);
     }
@@ -108,6 +100,20 @@ const SeedsSuplierRegister = () => {
             autoCapitalize="none"
             style={styles.input}
             placeholder="Método de Recolección"
+          ></TextInput>
+          <TextInput
+            value={supplierEmail}
+            onChangeText={(text) => setSupplierEmail(text)}
+            autoCapitalize="none"
+            style={styles.input}
+            placeholder="Correo electrónico del Proveedor"
+          ></TextInput>
+          <TextInput
+            value={supplierAddress}
+            onChangeText={(text) => setSupplierAddress(text)}
+            autoCapitalize="none"
+            style={styles.input}
+            placeholder="Dirección"
           ></TextInput>
           <Pressable
             style={styles.button}

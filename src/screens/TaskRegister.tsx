@@ -1,8 +1,6 @@
 import { Picker } from "@react-native-picker/picker";
 import {
   DocumentReference,
-  Timestamp,
-  addDoc,
   collection,
   getDocs,
   query,
@@ -12,57 +10,104 @@ import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import Loading from "../components/Loading";
+import { USER_COLLECTION } from "../contants/constants";
 import {
-  SupplierInterface,
-  TaskFormData,
-  TaskInterface,
-  TechnicalInterface,
-} from "../types/firebaseTypes";
-import {
-  SUPPLIER_COLLECTION,
-  TASK_COLLECTION,
-  TECHNICAL_COLLECTION,
-  USER_COLLECTION,
-} from "../contants/constants";
+  ClassificationTask,
+  CreateClassification,
+} from "../types/classifications/types";
+import { getTechnicalUsersHandler } from "../handlers/users/getUsers";
+import { createSeedClassificationHandler } from "../handlers/classifications/createClassification";
+import { getSuppliersHandler } from "../handlers/suppliers/getSuppliers";
+
+const seedVarieties = [
+  {
+    name: "Todos",
+    value: null,
+  },
+  {
+    name: "Tecunumanii",
+    value: "tecunumanii",
+  },
+  {
+    name: "Oocarpa",
+    value: "oocarpa",
+  },
+  {
+    name: "Psegoustrobus",
+    value: "psegoustrobus",
+  },
+];
 
 const TaskRegister = () => {
   const db = FIREBASE_DB;
   const currentUser = FIREBASE_AUTH.currentUser;
-  const [technicals, setTechnicals] = useState<TechnicalInterface[]>([]);
-  const [suppliers, setSuppliers] = useState<SupplierInterface[]>([]);
+  const [technicals, setTechnicals] = useState<
+    { name: string; value: string }[]
+  >([]);
+  const [suppliers, setSuppliers] = useState<{ name: string; value: string }[]>(
+    []
+  );
   const [currentUserRef, setCurrentUserRef] = useState<DocumentReference>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [seedVariety, setSeedVariety] = useState<string | null>(
+    seedVarieties[0].value
+  );
+  const [seedVarietyLimit, setSeedVarietyLimit] = useState<string>("");
+  const [totalSeedLimit, setTotalSeedLimit] = useState<string>("");
+  console.log({ totalSeedLimit, seedVarietyLimit, seedVariety });
 
-  const [formData, setFormData] = useState<TaskFormData>({
-    thecnical: "",
-    provider: "",
-    taskNote: "",
+  const [formData, setFormData] = useState<ClassificationTask>({
+    seedsVarietyLimit:
+      seedVarietyLimit && seedVarietyLimit !== "0"
+        ? Number(seedVarietyLimit)
+        : null,
+    totalSeedsLimit:
+      totalSeedLimit && totalSeedLimit !== "0" ? Number(totalSeedLimit) : null,
+    supplierId: null,
+    technicalId: null,
+    seedVarietyRequired: seedVariety,
   });
 
-  console.log({ technicals });
+  console.log({ formData });
+
+  const seedVarietyLimitOnChange = (text: string) => {
+    const numberValue = text.replace(/[^0-9]/g, "");
+    setSeedVarietyLimit(numberValue);
+    setFormData((prev) => ({
+      ...prev,
+      seedsVarietyLimit: Number(numberValue),
+    }));
+  };
+
+  const seedTotalLimitOnChange = (text: string) => {
+    setTotalSeedLimit(text.replace(/[^0-9]/g, ""));
+    setFormData((prev) => ({
+      ...prev,
+      totalSeedsLimit: Number(text.replace(/[^0-9]/g, "")),
+    }));
+  };
+
   const getTechnicals = async () => {
-    const q = query(
-      collection(db, USER_COLLECTION),
-      where("userType", "==", "technical")
+    const technicalList = await getTechnicalUsersHandler(
+      "vivero-santo-domingo"
     );
 
-    const querySnapshot = await getDocs(q);
-
-    const docs = querySnapshot.docs.map(
-      (doc) => doc.data() as TechnicalInterface
-    );
-
-    setTechnicals(docs);
+    console.log({ technicalList });
+    const technicalsDataList = technicalList.map((t) => ({
+      name: t.name,
+      value: t.id,
+    }));
+    setTechnicals(technicalsDataList);
   };
 
   const getProviders = async () => {
-    const querySnapshot = await getDocs(collection(db, SUPPLIER_COLLECTION));
-
-    const docs = querySnapshot.docs.map(
-      (doc) => doc.data() as SupplierInterface
+    const suppliersList = await getSuppliersHandler();
+    setSuppliers(
+      suppliersList.map((s) => ({
+        name: s.name,
+        value: s.id,
+      }))
     );
-
-    setSuppliers(docs);
   };
 
   const getCurrentUserReference = async () => {
@@ -84,67 +129,32 @@ const TaskRegister = () => {
     getProviders();
   }, []);
 
-  const getTechnicalRef = async (technicalEmail: string) => {
-    const q = query(
-      collection(db, USER_COLLECTION),
-      where("userType", "==", "technical")
-    );
-
-    const querySnapshot = await getDocs(q);
-
-    const docs = querySnapshot.docs.map((doc) => doc.ref);
-
-    return docs[0];
-  };
-
-  const getProviderRef = async (supplierName: string) => {
-    const q = query(
-      collection(db, SUPPLIER_COLLECTION),
-      where("supplierName", "==", supplierName)
-    );
-
-    const querySnapshot = await getDocs(q);
-
-    const docs = querySnapshot.docs.map((doc) => doc.ref);
-
-    return docs[0];
-  };
-
   const taskRegistrationHandler = async () => {
     try {
       setLoading(true);
-      const technicalEmail = formData.thecnical;
-      const supplierName = formData.provider;
-
-      let technicalRef: DocumentReference | null = null;
-      let providerRef: DocumentReference | null = null;
-
-      if (technicalEmail !== "") {
-        technicalRef = await getTechnicalRef(technicalEmail);
-      }
-
-      if (supplierName !== "") {
-        providerRef = await getProviderRef(supplierName);
-      }
-
-      const newDoc = collection(db, TASK_COLLECTION);
-
-      const task: TaskInterface = {
-        taskNote: formData.taskNote,
-        technicalReference: technicalRef,
-        createdAt: Timestamp.now(),
-        createdBy: currentUserRef!,
-        providerReference: providerRef,
+      const classification: CreateClassification = {
+        businessId: "vivero-santo-domingo",
+        classificationData: {
+          oocarpa: 0,
+          psegoustrobus: 0,
+          tecunumanii: 0,
+        },
+        startedAt: null,
+        finishedAt: null,
+        task: formData,
+        userId: currentUserRef?.id || "",
       };
 
-      await addDoc(newDoc, task);
+      await createSeedClassificationHandler(classification);
 
       alert("Tarea registrada correctamente");
 
       setFormData({
-        thecnical: "",
-        provider: "",
-        taskNote: "",
+        seedsVarietyLimit: null,
+        seedVarietyRequired: null,
+        supplierId: null,
+        technicalId: null,
+        totalSeedsLimit: null,
       });
       setLoading(false);
     } catch (error) {
@@ -176,18 +186,21 @@ const TaskRegister = () => {
         </Text>
         <Text style={styles.label}>Técnico</Text>
         <Picker
-          onValueChange={(itemValue: string, itemIndex) =>
-            setFormData({ ...formData, thecnical: itemValue })
+          onValueChange={(itemValue: string) =>
+            setFormData({ ...formData, technicalId: itemValue })
           }
           placeholder="Seleccionar técnico..."
           style={styles.picker}
+          selectedValue={
+            technicals.find((t) => t.value === formData.technicalId)?.name
+          }
         >
           {technicals?.map((technical, index) => {
             return (
               <Picker.Item
                 key={index}
-                label={technical.userName}
-                value={technical.email}
+                label={technical.name}
+                value={technical.value}
               />
             );
           })}
@@ -195,36 +208,55 @@ const TaskRegister = () => {
         <Text style={styles.label}>Proveedor de Semilla</Text>
         <Picker
           onValueChange={(itemValue: string, itemIndex) =>
-            setFormData({ ...formData, provider: itemValue })
+            setFormData({ ...formData, supplierId: itemValue })
           }
           placeholder="Seleccionar Proveedor de Semilla..."
           style={styles.picker}
         >
-          {suppliers?.map((supplier: SupplierInterface, index) => {
+          {suppliers?.map((supplier, index) => {
             return (
               <Picker.Item
                 key={index}
-                label={supplier.supplierName}
-                value={supplier.supplierName}
+                label={supplier.name}
+                value={supplier.value}
               />
             );
           })}
         </Picker>
-        <Text style={styles.label}>Nota de Tarea</Text>
+        <Text style={styles.label}>Variedad de Semilla</Text>
+        <Picker
+          onValueChange={(seedName: string) => {
+            setSeedVariety(seedName);
+            setFormData({ ...formData, seedVarietyRequired: seedName });
+          }}
+          placeholder="Seleccionar Variedad de semilla a seleccionar de Semilla..."
+          style={styles.picker}
+          selectedValue={seedVariety == null ? undefined : seedVariety}
+        >
+          {seedVarieties.map((seed, index) => {
+            return (
+              <Picker.Item key={index} label={seed.name} value={seed.value} />
+            );
+          })}
+        </Picker>
+        <Text style={styles.label}>
+          Límite de Semillas por variedad a notificar
+        </Text>
         <TextInput
-          multiline
-          numberOfLines={5}
-          editable
-          onChange={(e) =>
-            setFormData({
-              ...formData,
-              taskNote: e.nativeEvent.text,
-            })
-          }
-          value={formData.taskNote}
-          style={styles.textArea}
-        ></TextInput>
-
+          value={seedVarietyLimit}
+          onChangeText={(seeds) => seedVarietyLimitOnChange(seeds)}
+          numberOfLines={2}
+          style={styles.seedsInput}
+        />
+        <Text style={styles.label}>
+          Límite Total de Semilla para la clasificación
+        </Text>
+        <TextInput
+          value={totalSeedLimit}
+          onChangeText={(seeds) => seedTotalLimitOnChange(seeds)}
+          numberOfLines={2}
+          style={styles.seedsInput}
+        />
         <Pressable style={styles.button} onPress={taskRegistrationHandler}>
           <Text
             style={{
@@ -277,11 +309,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     paddingVertical: 12,
     paddingHorizontal: 32,
-    borderRadius: 4,
+    borderRadius: 5,
     elevation: 3,
     backgroundColor: "#689BFF",
     marginTop: 20,
     width: 350,
     alignSelf: "center",
+  },
+  seedsInput: {
+    alignSelf: "center",
+    height: 50,
+    width: 350,
+    borderWidth: 1,
+    backgroundColor: "#fff",
+    borderColor: "#ffff",
+    padding: 10,
   },
 });

@@ -1,4 +1,3 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import React, { useState } from "react";
 import {
   Button,
@@ -9,40 +8,31 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
-import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
+import { createTechnicalUserHandler } from "../handlers/users/createUser";
 
 const TechnicalRegister = () => {
   const [technicalName, setTechnicalName] = useState<string>("");
   const [technicalEmail, setTechnicalEmail] = useState<string>("");
-  const db = FIREBASE_DB;
-  const currentUser = FIREBASE_AUTH.currentUser;
+  const [technicalPhone, setTechnicalPhone] = useState<string>("");
 
   const registerTechnical = async () => {
     try {
-      const newDoc = collection(db, TECHNICAL_COLLECTION);
-
-      const q = query(
-        collection(db, USER_COLLECTION),
-        where("email", "==", currentUser?.email)
-      );
-      const querySnapshot = await getDocs(q);
-      const user = querySnapshot.docs[0].ref;
-
-      await addDoc(newDoc, {
-        technicalName: technicalName,
-        technicalEmail: technicalEmail,
-        createdBy: user,
+      await createTechnicalUserHandler({
+        email: technicalEmail,
+        name: technicalName,
+        phone: technicalPhone,
       });
 
       alert("Técnico registrado correctamente");
 
       setTechnicalName("");
       setTechnicalEmail("");
+      setTechnicalPhone("");
     } catch (error) {
       alert(error);
     }
   };
+
   return (
     <View>
       <KeyboardAvoidingView behavior="padding">
@@ -68,6 +58,12 @@ const TechnicalRegister = () => {
           value={technicalEmail}
           style={styles.input}
         />
+        <TextInput
+          placeholder="Número telefónico"
+          onChangeText={setTechnicalPhone}
+          value={technicalPhone}
+          style={styles.input}
+        />
         <Pressable style={styles.button} onPress={() => registerTechnical()}>
           <Text
             style={{
@@ -78,7 +74,7 @@ const TechnicalRegister = () => {
               color: "white",
             }}
           >
-            Registrar Proveedor
+            Registrar Técnico
           </Text>
         </Pressable>
       </KeyboardAvoidingView>

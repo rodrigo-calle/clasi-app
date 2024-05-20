@@ -23,6 +23,8 @@ import { Image } from "expo-image";
 import { Picker } from "@react-native-picker/picker";
 import { TECHNICAL_COLLECTION, USER_COLLECTION } from "../contants/constants";
 import { isEmail } from "../utils/validation";
+import { getTechnicalUserByEmailHandler } from "../handlers/users/getUsers";
+import { createProductionAdministratorHandler } from "../handlers/users/createUser";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -57,7 +59,7 @@ const Register = ({ navigation }: RouterProps) => {
       alert("Debe ingresar un correo valido");
       return;
     }
-    
+
     setLoading(true);
     try {
       if (!isTechnical) {
@@ -68,40 +70,25 @@ const Register = ({ navigation }: RouterProps) => {
         );
 
         if (userCredential.user) {
-          const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
-          await setDoc(newDoc, {
-            email: userCredential.user.email,
-            userName: userName,
-            userType: "manager",
+          createProductionAdministratorHandler({
+            name: userName,
+            phone: "",
+            email: email,
           });
 
           alert("Usuario creado correctamente, por favor solicitar acceso");
         }
       } else {
-        const q = query(
-          collection(db, TECHNICAL_COLLECTION),
-          where("technicalEmail", "==", email)
-        );
+        const technical = await getTechnicalUserByEmailHandler(email);
 
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.docs.length > 0) {
+        if (technical) {
           const userCredential = await createUserWithEmailAndPassword(
             auth,
             email,
             password
           );
 
-          if (userCredential.user) {
-            const newDoc = doc(db, USER_COLLECTION, userCredential.user.uid);
-            await setDoc(newDoc, {
-              email: userCredential.user.email,
-              userName: userName,
-              userType: "technical",
-            });
-
-            alert("Técnico creado correctamente");
-          }
+          alert("Técnico creado correctamente");
         } else {
           alert(
             "El técnico aun no se encuentra registrado por el administrador"

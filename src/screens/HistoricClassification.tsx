@@ -1,65 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import { ScrollView, Text } from "react-native";
-import {
-  DocumentReference,
-  Timestamp,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
 import HistoricCard from "../components/HistoricCard";
 import Loading from "../components/Loading";
-import {
-  CLASSIFICATION_SESSION_COLLECTION,
-  USER_COLLECTION,
-} from "../contants/constants";
-import { ClassificationType } from "../types/firebaseTypes";
-import { getClassificationsHandler } from "../handlers/classification";
+import { ClassificationResponse } from "../types/classifications/types";
+import { getClassificationsHandler } from "../handlers/classifications/getClassification";
 
 const HistoricClassification = () => {
-  const currentUser = FIREBASE_AUTH.currentUser;
-  const db = FIREBASE_DB;
   const [openLoader, setOpenLoader] = useState<boolean>(false);
   const [classificationList, setClassificationList] = useState<
-    ClassificationType[]
+    ClassificationResponse[]
   >([]);
 
   const getClassificationListByUser = async () => {
     try {
       setOpenLoader(true);
-      const classificationsListFromQuery = await getClassificationsHandler();
-      // const q = query(
-      //   collection(db, USER_COLLECTION),
-      //   where("email", "==", currentUser?.email)
-      // );
-      // const querySnapshot = await getDocs(q);
-      // const user = querySnapshot.docs[0]?.ref;
+      const classificationsSessions = await getClassificationsHandler();
 
-      // const classificationQuery = query(
-      //   collection(db, CLASSIFICATION_SESSION_COLLECTION),
-      //   where("user", "==", user)
-      // );
-
-      // const classificationQuerySnapshot = await getDocs(classificationQuery);
-
-      // if (!classificationQuerySnapshot.empty) {
-      //   const classificationList: ClassificationType[] = [];
-
-      //   classificationQuerySnapshot.forEach((doc) => {
-      //     classificationList.push({
-      //       user: doc.data().user,
-      //       createdAt: doc.data().createdAt,
-      //       finishedAt: doc.data().finishedAt,
-      //       classificationData: doc.data().classifficationData,
-      //       id: doc.id,
-      //     });
-      //   });
-
-      //   setClassificationList(classificationList);
-      // }
-      setClassificationList(classificationsListFromQuery);
+      setClassificationList(classificationsSessions);
       setOpenLoader(false);
     } catch (error) {
       alert(error);
@@ -69,7 +26,7 @@ const HistoricClassification = () => {
 
   useEffect(() => {
     getClassificationListByUser();
-  }, [db]);
+  }, []);
 
   return (
     <ScrollView
@@ -91,16 +48,14 @@ const HistoricClassification = () => {
         Historial
       </Text>
       {classificationList.length > 0 ? (
-        classificationList.map((classification, index) => {
+        classificationList.map((classification) => {
           return (
             <HistoricCard
-              key={index}
-              code={classification.id ?? ""}
+              key={classification.id}
+              id={classification.id}
               createdAt={classification.createdAt}
               finishedAt={
-                !classification.finishedAt
-                  ? null
-                  : classification.finishedAt
+                !classification.finishedAt ? null : classification.finishedAt
               }
             />
           );
