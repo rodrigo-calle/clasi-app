@@ -2,10 +2,16 @@ import { CameraCapturedPicture } from "expo-camera";
 import axios from "axios";
 import {
   ClassificationPredictResult,
-  ClassificationType,
-  ClassificationV2,
-  SeedsVarieties,
+  // ClassificationType,
+  // ClassificationV2,
+  // SeedsVarieties,
 } from "../types/firebaseTypes";
+import {
+  ClassificationResponse,
+  ClassificationUpdateMethodsKind,
+  CreateClassification,
+  UpdateClassificationPartial,
+} from "../types/classifications/types";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
@@ -41,17 +47,16 @@ export const getSeedClassificationById = async (id: string) => {
     return null;
   }
 
-  return response.data as ClassificationType;
+  return response.data as ClassificationResponse;
 };
 
 export const updateSeedClassification = async (
   id: string,
-  classification:
-    | Partial<ClassificationV2>
-    | { classificationData: { [key: string]: number } }
+  classifcationUpdateKind: ClassificationUpdateMethodsKind,
+  classification: UpdateClassificationPartial
 ) => {
-  const response = await axios.patch(
-    `${API_BASE_URL}/classifications/${id}`,
+  const response = await axios.patch<ClassificationResponse>(
+    `${API_BASE_URL}/classifications/${id}/${classifcationUpdateKind}`,
     classification
   );
 
@@ -59,9 +64,9 @@ export const updateSeedClassification = async (
 };
 
 export const createSeedClassification = async (
-  classification: ClassificationType
+  classification: CreateClassification
 ) => {
-  const response = await axios.post(
+  const response = await axios.post<ClassificationResponse>(
     `${API_BASE_URL}/classifications`,
     classification
   );
@@ -71,5 +76,5 @@ export const createSeedClassification = async (
 
 export const getSeedsClassification = async () => {
   const response = await axios.get(`${API_BASE_URL}/classifications`);
-  return response.data as ClassificationType[];
+  return response.data as ClassificationResponse[];
 };
