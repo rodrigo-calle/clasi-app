@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text } from "react-native";
+import { ScrollView, Text, StyleSheet } from "react-native";
 import HistoricCard from "../components/HistoricCard";
 import Loading from "../components/Loading";
 import { ClassificationResponse } from "../types/classifications/types";
 import { getClassificationsHandler } from "../handlers/classifications/getClassification";
+import { Picker } from "@react-native-picker/picker";
+import { getTechnicalUsersHandler } from "../handlers/users/getUsers";
+import { UserResponse } from "../types/users/types";
 
 const HistoricClassification = () => {
   const [openLoader, setOpenLoader] = useState<boolean>(false);
   const [classificationList, setClassificationList] = useState<
+    ClassificationResponse[]
+  >([]);
+  const [technicalSelected, setTechnicalSelected] = useState<string>("");
+  const [technicals, setTechnicals] = useState<UserResponse[]>([]);
+  const [classificationListFiltered, setClassificationListFiltered] = useState<
     ClassificationResponse[]
   >([]);
 
@@ -24,9 +32,40 @@ const HistoricClassification = () => {
     }
   };
 
+  const getTechnicalUsers = async () => {
+    try {
+      setOpenLoader(true);
+      const technicals = await getTechnicalUsersHandler("vivero-santo-domingo");
+      setTechnicals(technicals);
+      setOpenLoader(false);
+    } catch (error) {
+      alert(error);
+      setOpenLoader(false);
+    }
+  };
+
+  const filterHandle = (technicalId: string) => {
+    if (technicalId === "Todos") {
+      setClassificationListFiltered(classificationList);
+    } else {
+      const filtered = classificationList.filter(
+        (classification) => classification.task?.technicalId === technicalId
+      );
+
+      setClassificationListFiltered(filtered);
+    }
+  };
+
   useEffect(() => {
     getClassificationListByUser();
+    getTechnicalUsers();
   }, []);
+
+  useEffect(() => {
+    if (!technicalSelected) {
+      filterHandle("Todos");
+    }
+  }, [technicals]);
 
   return (
     <ScrollView
@@ -47,8 +86,28 @@ const HistoricClassification = () => {
       >
         Historial
       </Text>
-      {classificationList.length > 0 ? (
-        classificationList.map((classification) => {
+      <Picker
+        onValueChange={(itemValue: string) => {
+          filterHandle(itemValue);
+          setTechnicalSelected(itemValue);
+        }}
+        placeholder="Seleccionar técnico..."
+        style={styles.picker}
+        selectedValue={technicalSelected}
+      >
+        <Picker.Item key={"todos"} label={"Todos"} value={"Todos"} />
+        {technicals?.map((technical, index) => {
+          return (
+            <Picker.Item
+              key={index}
+              label={technical.name}
+              value={technical.id}
+            />
+          );
+        })}
+      </Picker>
+      {classificationListFiltered.length > 0 ? (
+        classificationListFiltered.map((classification) => {
           return (
             <HistoricCard
               key={classification.id}
@@ -68,3 +127,18 @@ const HistoricClassification = () => {
 };
 
 export default HistoricClassification;
+
+const styles = StyleSheet.create({
+  picker: {
+    flex: 1,
+    alignSelf: "center",
+    marginBottom: 10,
+    height: 50,
+    width: 350,
+    borderWidth: 2,
+    backgroundColor: "#fff",
+    padding: 10,
+    borderColor: "#689BFF",
+    elevation: 2,
+  },
+});
