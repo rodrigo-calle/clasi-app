@@ -65,12 +65,10 @@ export const updateSeedCounterHandler = async (
   tecunumanii: number;
   psegoustrobus: number;
 } | null> => {
-  console.log({ typeClassified, classificationDocId });
   const currentSeedQuantity = await getSeedCurrentQuantityHandler(
     classificationDocId,
     typeClassified
   );
-  console.log({ currentSeedQuantity });
   if (currentSeedQuantity == null) {
     return null;
   }

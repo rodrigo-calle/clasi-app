@@ -54,7 +54,6 @@ const TaskRegister = () => {
   );
   const [seedVarietyLimit, setSeedVarietyLimit] = useState<string>("");
   const [totalSeedLimit, setTotalSeedLimit] = useState<string>("");
-  console.log({ totalSeedLimit, seedVarietyLimit, seedVariety });
 
   const [formData, setFormData] = useState<ClassificationTask>({
     seedsVarietyLimit:
@@ -67,8 +66,6 @@ const TaskRegister = () => {
     technicalId: null,
     seedVarietyRequired: seedVariety,
   });
-
-  console.log({ formData });
 
   const seedVarietyLimitOnChange = (text: string) => {
     const numberValue = text.replace(/[^0-9]/g, "");
@@ -92,7 +89,6 @@ const TaskRegister = () => {
       "vivero-santo-domingo"
     );
 
-    console.log({ technicalList });
     const technicalsDataList = technicalList.map((t) => ({
       name: t.name,
       value: t.id,

@@ -78,3 +78,10 @@ export const getSeedsClassification = async () => {
   const response = await axios.get(`${API_BASE_URL}/classifications`);
   return response.data as ClassificationResponse[];
 };
+
+export const getSeedsClassificationByUser = async (email: string) => {
+  const response = await axios.get(
+    `${API_BASE_URL}/classifications/user/${email}`
+  );
+  return response.data as ClassificationResponse[];
+};

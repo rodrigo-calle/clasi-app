@@ -61,12 +61,10 @@ export const updateSeedCounterHandler = async (
   tecunumanii: number;
   psegoustrobus: number;
 } | null> => {
-  console.log({ typeClassified, classificationDocId });
   const currentSeedQuantity = await getSeedCurrentQuantityHandler(
     classificationDocId,
     typeClassified
   );
-  console.log({ currentSeedQuantity });
   if (currentSeedQuantity == null) {
     return null;
   }
@@ -82,14 +80,12 @@ export const updateSeedCounterHandler = async (
     }
   );
 
-  console.log({ "IJAFOFADFDA:": seedClassifiedSession.data });
   return seedClassifiedSession.data.classificationData;
 };
 
 export const createSeedClassificationHandler = async (
   classificationData: ClassificationType
 ) => {
-  console.log({ classificationData });
   const seedClassification = await createSeedClassification(classificationData);
   if (seedClassification.status !== 200) {
     return null;

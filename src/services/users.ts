@@ -14,6 +14,7 @@ import {
   UserResponse,
 } from "../types/users/types";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
+import axios from "axios";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 const DB = FIREBASE_DB;

@@ -9,13 +9,11 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { captureRef } from "react-native-view-shot";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import {
   Camera,
   CameraCapturedPicture,
   CameraView,
-  CameraViewRef,
 } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton from "../components/Button";
@@ -94,8 +92,6 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
         if (data && data.uri) {
           setImageData(data);
           setImage(data.uri);
-
-          console.log({ data, imageData });
         }
       } catch (error) {
         console.log({ error });
@@ -116,16 +112,12 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       setOpenLoading(true);
       setLoadingMessage("Clasificando semilla...");
       const classificationResponse = await getSeedClassification(imageData!);
-      console.log({ classificationResponse });
       if (classificationResponse.status === 200) {
         const classificationData = classificationResponse.data;
-        console.log({ classificationData });
         const classificationUpdated = await updateSeedCounterHandler(
           classificationData.class,
           currentClassificationSessionId
         );
-
-        console.log({ classificationUpdated });
 
         if (!classificationUpdated) {
           alert("Error al clasificar la semilla");
@@ -212,8 +204,6 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
       alert("Sesión de clasificación terminada");
     }
   };
-
-  console.log({ cameraRef });
 
   return (
     <ScrollView scrollEnabled={!openLoading}>
