@@ -14,7 +14,7 @@ import { HitoricCardProps } from "../types/props";
 import { CLASSIFICATION_SESSION_COLLECTION } from "../contants/constants";
 
 const HistoricCard = (props: HitoricCardProps) => {
-  const { code, createdAt, finishedAt } = props;
+  const { id, createdAt, finishedAt } = props;
   const db = FIREBASE_DB;
 
   const getReadableDuration = (
@@ -54,7 +54,7 @@ const HistoricCard = (props: HitoricCardProps) => {
         <View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Código:</Text>
-            <Text>{code}</Text>
+            <Text>{id}</Text>
           </View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Fecha Hora:</Text>
@@ -67,7 +67,7 @@ const HistoricCard = (props: HitoricCardProps) => {
         </View>
         <View>
           <TouchableOpacity
-            onPress={() => deleteClassification(code)}
+            onPress={() => deleteClassification(id)}
             style={{
               flex: 1,
               alignContent: "center",
