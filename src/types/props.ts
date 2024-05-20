@@ -1,7 +1,7 @@
 import { Timestamp } from "firebase/firestore";
 
 export type HitoricCardProps = {
-  code: string;
+  id: string;
   createdAt: Timestamp["nanoseconds"];
   finishedAt: Timestamp["nanoseconds"] | null;
 };

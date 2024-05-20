@@ -6,38 +6,12 @@ export interface TechnicalInterface {
   technicalName: string;
 }
 
-export interface TaskInterface {
-  taskNote: string | null;
-  technicalReference: DocumentReference | null;
-  createdAt: Timestamp;
-  createdBy: DocumentReference;
-  providerReference: DocumentReference | null;
-}
-
-export type TaskFormData = {
-  thecnical: string;
-  provider: string;
-  taskNote: string;
-};
-
 export type SupplierInterface = {
   supplierHarvestMethod: string;
   supplierName: string;
   supplierPhone: string;
   supplierSeedOrigin: string;
 };
-
-export interface ClassificationType {
-  user: string;
-  createdAt: number;
-  finishedAt: number | null;
-  classificationData: {
-    oocarpa: number;
-    tecunumanii: number;
-    psegoustrobus: number;
-  };
-  id?: string;
-}
 
 export interface ClassificationV2 {
   user: {
