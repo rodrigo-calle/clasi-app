@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ScrollView, Text, StyleSheet } from "react-native";
+import { ScrollView, Text, StyleSheet, Button } from "react-native";
 import HistoricCard from "../components/HistoricCard";
 import Loading from "../components/Loading";
 import { ClassificationResponse } from "../types/classifications/types";
@@ -7,6 +7,7 @@ import { getClassificationsHandler } from "../handlers/classifications/getClassi
 import { Picker } from "@react-native-picker/picker";
 import { getTechnicalUsersHandler } from "../handlers/users/getUsers";
 import { UserResponse } from "../types/users/types";
+import { getReports } from "../services/reports";
 
 const HistoricClassification = () => {
   const [openLoader, setOpenLoader] = useState<boolean>(false);
@@ -67,6 +68,17 @@ const HistoricClassification = () => {
     }
   }, [technicals]);
 
+  const getReport = async () => {
+    try {
+      setOpenLoader(true);
+      await getReports(technicalSelected);
+      setOpenLoader(false);
+    } catch (error) {
+      alert(error);
+      setOpenLoader(false);
+    }
+  };
+
   return (
     <ScrollView
       scrollEnabled={true}
@@ -106,6 +118,13 @@ const HistoricClassification = () => {
           );
         })}
       </Picker>
+      {technicalSelected !== "Todos" && (
+        <Button
+          title="Generar Reporte"
+          color={"#689BFF"}
+          onPress={() => getReport()}
+        ></Button>
+      )}
       {classificationListFiltered.length > 0 ? (
         classificationListFiltered.map((classification) => {
           return (
