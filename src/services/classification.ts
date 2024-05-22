@@ -1,11 +1,6 @@
 import { CameraCapturedPicture } from "expo-camera";
 import axios from "axios";
-import {
-  ClassificationPredictResult,
-  // ClassificationType,
-  // ClassificationV2,
-  // SeedsVarieties,
-} from "../types/firebaseTypes";
+import { ClassificationPredictResult } from "../types/firebaseTypes";
 import {
   ClassificationResponse,
   ClassificationUpdateMethodsKind,

@@ -12,9 +12,14 @@ import {
 import { FIREBASE_DB } from "../server/FirebaseConfig";
 import { HitoricCardProps } from "../types/props";
 import { CLASSIFICATION_SESSION_COLLECTION } from "../contants/constants";
+import { NavigationProp } from "@react-navigation/native";
 
-const HistoricCard = (props: HitoricCardProps) => {
-  const { id, createdAt, finishedAt } = props;
+interface Props extends HitoricCardProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const HistoricCard = (props: Props) => {
+  const { id, createdAt, finishedAt, navigation } = props;
   const db = FIREBASE_DB;
 
   const getReadableDuration = (
@@ -48,9 +53,15 @@ const HistoricCard = (props: HitoricCardProps) => {
     }
   };
 
+  const onPress = () => {
+    navigation.navigate("Detalles de Clasificación", {
+      id: id,
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <Pressable style={styles.pressable}>
+      <Pressable style={styles.pressable} onPress={onPress}>
         <View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Código:</Text>

@@ -8,8 +8,13 @@ import { Picker } from "@react-native-picker/picker";
 import { getTechnicalUsersHandler } from "../handlers/users/getUsers";
 import { UserResponse } from "../types/users/types";
 import { getReports } from "../services/reports";
+import { NavigationProp } from "@react-navigation/native";
 
-const HistoricClassification = () => {
+interface RouterProps {
+  navigation: NavigationProp<any, any>;
+}
+
+const HistoricClassification = ({ navigation }: RouterProps) => {
   const [openLoader, setOpenLoader] = useState<boolean>(false);
   const [classificationList, setClassificationList] = useState<
     ClassificationResponse[]
@@ -129,6 +134,7 @@ const HistoricClassification = () => {
         classificationListFiltered.map((classification) => {
           return (
             <HistoricCard
+              navigation={navigation}
               key={classification.id}
               id={classification.id}
               createdAt={classification.createdAt}

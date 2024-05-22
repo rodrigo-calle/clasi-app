@@ -10,11 +10,7 @@ import {
   View,
 } from "react-native";
 import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
-import {
-  Camera,
-  CameraCapturedPicture,
-  CameraView,
-} from "expo-camera";
+import { Camera, CameraCapturedPicture, CameraView } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton from "../components/Button";
 import { getSeedClassification } from "../services/classification";
@@ -42,7 +38,7 @@ interface RouterProps {
 
 type CameraRefType = React.LegacyRef<CameraView> | undefined;
 
-const ClassificationDetails = ({ navigation }: RouterProps) => {
+const ClassificationSession = ({ navigation }: RouterProps) => {
   const [hasPermission, setHasPermission] = React.useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [imageData, setImageData] = useState<CameraCapturedPicture | undefined>(
@@ -450,6 +446,30 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
           >
             Registro y Asignación de Tareas
           </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() => navigation.navigate("Gráficos")}
+          >
+            Gráficos
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() =>
+              navigation.navigate("Detalles de Clasificación", { id: 2 })
+            }
+          >
+            Detalles de Classificación
+          </Text>
         </View>
       ) : (
         <Text
@@ -468,7 +488,7 @@ const ClassificationDetails = ({ navigation }: RouterProps) => {
   );
 };
 
-export default ClassificationDetails;
+export default ClassificationSession;
 
 const styles = StyleSheet.create({
   mediaButtons: {

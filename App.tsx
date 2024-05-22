@@ -1,7 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./src/screens/Login";
-import ClassificationDetails from "./src/screens/ClassificationDetails";
+// import ClassificationDetails from "./src/screens/ClassificationDetails";
 import SeedsSuplierRegister from "./src/screens/SeedsSuplierRegister";
 import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
@@ -10,6 +10,8 @@ import Register from "./src/screens/Register";
 import TechnicalRegister from "./src/screens/TechnicalRegister";
 import HistoricClassification from "./src/screens/HistoricClassification";
 import TaskRegister from "./src/screens/TaskRegister";
+import ClassificationSession from "./src/screens/ClassificationSession";
+import SeedClassificationDetail from "./src/screens/SeedClassificationDetail";
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
@@ -18,8 +20,15 @@ function InsideLayout() {
   return (
     <InsideStack.Navigator>
       <InsideStack.Screen
-        name="Detalles de Clasificación de Semilla"
-        component={ClassificationDetails}
+        name="Sesión de Clasificación de Semilla"
+        component={ClassificationSession}
+      />
+      <InsideStack.Screen
+        name="Detalles de Clasificación"
+        component={SeedClassificationDetail}
+        options={{
+          title: "Detalles de Clasificación1",
+        }}
       />
       <InsideStack.Screen
         name="Registro de Proveedores de Semilla"
@@ -34,6 +43,7 @@ function InsideLayout() {
         component={HistoricClassification}
       />
       <InsideStack.Screen name="Registro de Tareas" component={TaskRegister} />
+      {/* <InsideStack.Screen name="Gráficos" component={Charts} /> */}
     </InsideStack.Navigator>
   );
 }
