@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "./src/screens/Login";
+import React from "react";
 // import ClassificationDetails from "./src/screens/ClassificationDetails";
 import SeedsSuplierRegister from "./src/screens/SeedsSuplierRegister";
 import { onAuthStateChanged } from "firebase/auth";
@@ -12,6 +13,7 @@ import HistoricClassification from "./src/screens/HistoricClassification";
 import TaskRegister from "./src/screens/TaskRegister";
 import ClassificationSession from "./src/screens/ClassificationSession";
 import SeedClassificationDetail from "./src/screens/SeedClassificationDetail";
+import ClassificationInProgressList from "./src/screens/ClassificationInProgressList";
 
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
@@ -44,6 +46,10 @@ function InsideLayout() {
       />
       <InsideStack.Screen name="Registro de Tareas" component={TaskRegister} />
       {/* <InsideStack.Screen name="Gráficos" component={Charts} /> */}
+      <InsideStack.Screen
+        name="Clasificaciones en progreso"
+        component={ClassificationInProgressList}
+      />
     </InsideStack.Navigator>
   );
 }

@@ -104,6 +104,7 @@ const HistoricClassification = ({ navigation }: RouterProps) => {
         Historial
       </Text>
       <Picker
+        // touchableWrapperProps={{ testID: "picker-select" }}
         onValueChange={(itemValue: string) => {
           filterHandle(itemValue);
           setTechnicalSelected(itemValue);
@@ -111,8 +112,14 @@ const HistoricClassification = ({ navigation }: RouterProps) => {
         placeholder="Seleccionar técnico..."
         style={styles.picker}
         selectedValue={technicalSelected}
+        testID="picker"
       >
-        <Picker.Item key={"todos"} label={"Todos"} value={"Todos"} />
+        <Picker.Item
+          key={"todos"}
+          label={"Todos"}
+          value={"Todos"}
+          testID="all"
+        />
         {technicals?.map((technical, index) => {
           return (
             <Picker.Item
@@ -125,6 +132,7 @@ const HistoricClassification = ({ navigation }: RouterProps) => {
       </Picker>
       {technicalSelected !== "Todos" && (
         <Button
+          testID="generate-report-button"
           title="Generar Reporte"
           color={"#689BFF"}
           onPress={() => getReport()}

@@ -2,8 +2,8 @@ import { Timestamp } from "firebase/firestore";
 
 export type HitoricCardProps = {
   id: string;
-  createdAt: Timestamp["nanoseconds"];
-  finishedAt: Timestamp["nanoseconds"] | null;
+  createdAt: number;
+  finishedAt: number;
 };
 
 export enum IconType {

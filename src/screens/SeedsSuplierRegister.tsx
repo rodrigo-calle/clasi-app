@@ -128,7 +128,7 @@ const SeedsSuplierRegister = () => {
                 color: "white",
               }}
             >
-              Registrar Proveedor
+              Registrar
             </Text>
           </Pressable>
         </KeyboardAvoidingView>

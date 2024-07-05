@@ -1,16 +1,7 @@
 import { Picker } from "@react-native-picker/picker";
-import {
-  DocumentReference,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import Loading from "../components/Loading";
-import { USER_COLLECTION } from "../contants/constants";
 import {
   ClassificationTask,
   CreateClassification,
@@ -18,6 +9,8 @@ import {
 import { getTechnicalUsersHandler } from "../handlers/users/getUsers";
 import { createSeedClassificationHandler } from "../handlers/classifications/createClassification";
 import { getSuppliersHandler } from "../handlers/suppliers/getSuppliers";
+import { getCurrentUser } from "../services/session";
+import { getUserByEmail } from "../services/users";
 
 const seedVarieties = [
   {
@@ -39,15 +32,12 @@ const seedVarieties = [
 ];
 
 const TaskRegister = () => {
-  const db = FIREBASE_DB;
-  const currentUser = FIREBASE_AUTH.currentUser;
   const [technicals, setTechnicals] = useState<
     { name: string; value: string }[]
   >([]);
   const [suppliers, setSuppliers] = useState<{ name: string; value: string }[]>(
     []
   );
-  const [currentUserRef, setCurrentUserRef] = useState<DocumentReference>();
   const [loading, setLoading] = useState<boolean>(false);
   const [seedVariety, setSeedVariety] = useState<string | null>(
     seedVarieties[0].value
@@ -106,26 +96,30 @@ const TaskRegister = () => {
     );
   };
 
-  const getCurrentUserReference = async () => {
-    const q = query(
-      collection(db, USER_COLLECTION),
-      where("email", "==", currentUser?.email)
-    );
+  // const getCurrentUserReference = async () => {
+  //   const q = query(
+  //     collection(db, USER_COLLECTION),
+  //     where("email", "==", currentUser?.email)
+  //   );
 
-    const querySnapshot = await getDocs(q);
+  //   const querySnapshot = await getDocs(q);
 
-    const docs = querySnapshot.docs.map((doc) => doc.ref);
+  //   const docs = querySnapshot.docs.map((doc) => doc.ref);
 
-    setCurrentUserRef(docs[0]);
-  };
+  //   setCurrentUserRef(docs[0]);
+  // };
 
   useEffect(() => {
-    getCurrentUserReference();
+    // getCurrentUserReference();
     getTechnicals();
     getProviders();
   }, []);
 
   const taskRegistrationHandler = async () => {
+    const authUser = getCurrentUser();
+
+    const currentUser = await getUserByEmail(authUser?.email || "");
+
     try {
       setLoading(true);
       const classification: CreateClassification = {
@@ -138,7 +132,7 @@ const TaskRegister = () => {
         startedAt: null,
         finishedAt: null,
         task: formData,
-        userId: currentUserRef?.id || "",
+        userId: currentUser?.id || "",
       };
 
       await createSeedClassificationHandler(classification);
@@ -182,6 +176,7 @@ const TaskRegister = () => {
         </Text>
         <Text style={styles.label}>Técnico</Text>
         <Picker
+          testID="technical-picker"
           onValueChange={(itemValue: string) =>
             setFormData({ ...formData, technicalId: itemValue })
           }
@@ -203,6 +198,7 @@ const TaskRegister = () => {
         </Picker>
         <Text style={styles.label}>Proveedor de Semilla</Text>
         <Picker
+          testID="supplier-picker"
           onValueChange={(itemValue: string, itemIndex) =>
             setFormData({ ...formData, supplierId: itemValue })
           }
@@ -221,6 +217,7 @@ const TaskRegister = () => {
         </Picker>
         <Text style={styles.label}>Variedad de Semilla</Text>
         <Picker
+          testID="seed-variety-picker"
           onValueChange={(seedName: string) => {
             setSeedVariety(seedName);
             setFormData({ ...formData, seedVarietyRequired: seedName });
@@ -239,6 +236,7 @@ const TaskRegister = () => {
           Límite de Semillas por variedad a notificar
         </Text>
         <TextInput
+          testID="variety-seed-limit"
           value={seedVarietyLimit}
           onChangeText={(seeds) => seedVarietyLimitOnChange(seeds)}
           numberOfLines={2}
@@ -252,8 +250,13 @@ const TaskRegister = () => {
           onChangeText={(seeds) => seedTotalLimitOnChange(seeds)}
           numberOfLines={2}
           style={styles.seedsInput}
+          testID="total-seed-limit"
         />
-        <Pressable style={styles.button} onPress={taskRegistrationHandler}>
+        <Pressable
+          testID="pressable-form"
+          style={styles.button}
+          onPress={taskRegistrationHandler}
+        >
           <Text
             style={{
               fontSize: 16,

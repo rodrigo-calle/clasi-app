@@ -11,44 +11,34 @@ import {
 } from "react-native";
 import { HitoricCardProps } from "../types/props";
 import { NavigationProp } from "@react-navigation/native";
-import { deleteClassificationService } from "../services/classification";
 
 interface Props extends HitoricCardProps {
   navigation: NavigationProp<any, any>;
 }
 
-const HistoricCard = (props: Props) => {
+const ClassificationInProgressCard = (props: Props) => {
   const { id, createdAt, finishedAt, navigation } = props;
-  // console.log({ createdAt, finishedAt });
-  // const getReadableDuration = (
-  //   createdAt: Timestamp["nanoseconds"],
-  //   finishedAt: Timestamp["nanoseconds"] | null
-  // ) => {
-  //   if (!finishedAt) {
-  //     return "En progreso";
-  //   }
 
-  //   const duration = finishedAt - createdAt;
-  //   const minutes = Math.floor(duration / 60000);
-  //   const seconds = ((duration % 60000) / 1000).toFixed(0);
-  //   return `${minutes}:${seconds}`;
-  // };
-
-  // const date = new Date(createdAt * 1000).toLocaleString();
-
-  const deleteClassification = async (code: string) => {
-    try {
-      await deleteClassificationService(code);
-
-      alert("Clasificación eliminada correctamente");
-    } catch (error) {
-      console.log(error);
+  const getReadableDuration = (
+    createdAt: Timestamp["nanoseconds"],
+    finishedAt: Timestamp["nanoseconds"] | null
+  ) => {
+    if (!finishedAt) {
+      return "En progreso";
     }
+
+    const duration = finishedAt - createdAt;
+    const minutes = Math.floor(duration / 60000);
+    const seconds = ((duration % 60000) / 1000).toFixed(0);
+    return `${minutes}:${seconds}`;
   };
 
-  const onPress = () => {
-    navigation.navigate("Detalles de Clasificación", {
-      id: id,
+  const date = new Date(createdAt * 1000).toLocaleString();
+
+  const onPressHandle = async (code: string) => {
+    console.log("code", code);
+    navigation.navigate("Sesión de Clasificación de Semilla", {
+      id: code,
     });
   };
 
@@ -56,7 +46,7 @@ const HistoricCard = (props: Props) => {
     <View style={styles.container}>
       <Pressable
         style={styles.pressable}
-        onPress={onPress}
+        // onPress={onPress}
         testID="card-pressable"
       >
         <View>
@@ -67,30 +57,25 @@ const HistoricCard = (props: Props) => {
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Fecha Hora:</Text>
             <Text>
-              {String(createdAt).slice(5, 17)} - {String(createdAt).slice(17, 25)}
+              {createdAt.slice(5, 17)} - {createdAt.slice(17, 25)}
             </Text>
           </View>
           <View style={styles.dataContainer}>
-            <Text style={styles.label}>Fecha Fin:</Text>
-            <Text>
-              {String(finishedAt) === "In progress"
-                ? "En curso"
-                : String(finishedAt).slice(5, 17)}{" "}
-              - {String(finishedAt).slice(17, 25)}
-            </Text>
+            <Text style={styles.label}>Duración:</Text>
+            <Text>{"EN CURSO"}</Text>
           </View>
         </View>
         <View>
           <TouchableOpacity
-            testID="delete-button"
-            onPress={() => deleteClassification(id)}
+            testID="start-classify-button"
+            onPress={() => onPressHandle(id)}
             style={{
               flex: 1,
               alignContent: "center",
               justifyContent: "center",
             }}
           >
-            <Entypo name="trash" size={26} color="#FF5757" />
+            <Entypo name="tools" size={26} color="#000" />
           </TouchableOpacity>
         </View>
       </Pressable>
@@ -98,7 +83,7 @@ const HistoricCard = (props: Props) => {
   );
 };
 
-export default HistoricCard;
+export default ClassificationInProgressCard;
 
 const styles = StyleSheet.create({
   container: {

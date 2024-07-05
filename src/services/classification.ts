@@ -7,12 +7,15 @@ import {
   CreateClassification,
   UpdateClassificationPartial,
 } from "../types/classifications/types";
+import { FIREBASE_DB } from "../server/FirebaseConfig";
+import { CLASSIFICATION_SESSION_COLLECTION } from "../contants/constants";
+import { deleteDoc, doc } from "firebase/firestore";
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 // Predict Pine Seed
 export const getSeedClassification = async (photo: CameraCapturedPicture) => {
-  const formData = new FormData();
+  const formData: any = new FormData();
 
   formData.append("image", {
     uri: photo.uri,
@@ -79,4 +82,10 @@ export const getSeedsClassificationByUser = async (email: string) => {
     `${API_BASE_URL}/classifications/user/${email}`
   );
   return response.data as ClassificationResponse[];
+};
+
+export const deleteClassificationService = async (id: string): Promise<void> => {
+  const db = FIREBASE_DB;
+  const classificationRef = doc(db, CLASSIFICATION_SESSION_COLLECTION, id);
+  await deleteDoc(classificationRef);
 };

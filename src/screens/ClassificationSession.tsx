@@ -9,36 +9,33 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { FIREBASE_AUTH, FIREBASE_DB } from "../server/FirebaseConfig";
 import { Camera, CameraCapturedPicture, CameraView } from "expo-camera";
 import * as MediaLibrary from "expo-media-library";
 import CameraButton from "../components/Button";
 import { getSeedClassification } from "../services/classification";
-import {
-  Timestamp,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
 import Loading from "../components/Loading";
 import { IconType } from "../types/props";
-import { USER_COLLECTION } from "../contants/constants";
 import {
   endSeedClassificationSessionHandler,
   updateSeedCounterHandler,
 } from "../handlers/classifications/classification";
 import { createSeedClassificationHandler } from "../handlers/classifications/createClassification";
 import { CreateClassification } from "../types/classifications/types";
+import { getCurrentUser, logout } from "../services/session";
+import { getUserByEmail } from "../services/users";
+import { getSeedClassificationByIdHandler } from "../handlers/classification";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
+  route: any;
 }
 
 type CameraRefType = React.LegacyRef<CameraView> | undefined;
 
-const ClassificationSession = ({ navigation }: RouterProps) => {
+const ClassificationSession = ({ route, navigation }: RouterProps) => {
+  console.log({ route });
   const [hasPermission, setHasPermission] = React.useState<boolean>(false);
   const [image, setImage] = useState<string | null>(null);
   const [imageData, setImageData] = useState<CameraCapturedPicture | undefined>(
@@ -56,9 +53,6 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
   const [openLoading, setOpenLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
 
-  const db = FIREBASE_DB;
-  const auth = FIREBASE_AUTH;
-
   const cameraRef = useRef<CameraRefType>(null);
 
   useEffect(() => {
@@ -66,8 +60,23 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
       MediaLibrary.requestPermissionsAsync();
       const cameraStatus = await Camera.requestCameraPermissionsAsync();
       setHasPermission(cameraStatus.status === "granted");
+
+      if (route && route.params.id) {
+        setCurrentClassificationSessionId(route.params.id);
+        setClassificationSessionState(true);
+        const classification = await getSeedClassificationByIdHandler(
+          route.params.id
+        );
+        if (classification) {
+          setClassificationDataValues({
+            tecunumanii: classification.classificationData.tecunumanii,
+            oocarpa: classification.classificationData.oocarpa,
+            psegoustrobus: classification.classificationData.psegoustrobus,
+          });
+        }
+      }
     })();
-  }, []);
+  }, [route]);
 
   if (hasPermission === false) {
     return (
@@ -144,14 +153,18 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
     if (!currentClassificationSessionId) {
       setOpenLoading(true);
       setLoadingMessage("Iniciando sesión de clasificación...");
-      const user = auth?.currentUser?.email;
-      const q = query(
-        collection(db, USER_COLLECTION),
-        where("email", "==", user)
-      );
-      const usersResult = await getDocs(q);
+      const userEmail = getCurrentUser()?.email;
+      // const q = query(
+      //   collection(db, USER_COLLECTION),
+      //   where("email", "==", user)
+      // );
+      // const usersResult = await getDocs(q);
 
-      const userRef = usersResult.docs[0].ref;
+      const currentUser = await getUserByEmail(userEmail!);
+
+      if (!currentUser) {
+        throw new Error("No se encontró el usuario");
+      }
 
       const newClassificationDataValues: CreateClassification = {
         businessId: "vivero-santo-domingo",
@@ -163,7 +176,7 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
         startedAt: Timestamp.now().toMillis(),
         finishedAt: null,
         task: null,
-        userId: userRef.id,
+        userId: currentUser?.id,
       };
 
       const newSession = await createSeedClassificationHandler(
@@ -203,10 +216,7 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
 
   return (
     <ScrollView scrollEnabled={!openLoading}>
-      <Button
-        title="Cerrar Sesión"
-        onPress={() => FIREBASE_AUTH.signOut()}
-      ></Button>
+      <Button title="Cerrar Sesión" onPress={() => logout()}></Button>
       <Loading text={loadingMessage} open={openLoading}></Loading>
       <View
         style={{
@@ -457,7 +467,7 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
           >
             Gráficos
           </Text>
-          <Text
+          {/* <Text
             style={{
               color: "blue",
               marginLeft: 25,
@@ -469,6 +479,21 @@ const ClassificationSession = ({ navigation }: RouterProps) => {
             }
           >
             Detalles de Classificación
+          </Text> */}
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() =>
+              navigation.navigate("Clasificaciones en progreso", {
+                id: null,
+              })
+            }
+          >
+            Clasificaciones en Curso
           </Text>
         </View>
       ) : (
