@@ -74,7 +74,7 @@ const TechnicalRegister = () => {
               color: "white",
             }}
           >
-            Registrar Técnico
+            Registrar
           </Text>
         </Pressable>
       </KeyboardAvoidingView>

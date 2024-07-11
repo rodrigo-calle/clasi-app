@@ -4,6 +4,7 @@ export type HitoricCardProps = {
   id: string;
   createdAt: number;
   finishedAt: number;
+  startedAt: number;
 };
 
 export enum IconType {
@@ -19,6 +20,7 @@ export enum IconType {
 }
 
 export type CameraButtonProps = {
+  testID: string;
   title: string;
   onPress: () => void;
   icon: IconType;

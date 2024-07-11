@@ -138,7 +138,7 @@ const HistoricClassification = ({ navigation }: RouterProps) => {
           onPress={() => getReport()}
         ></Button>
       )}
-      {classificationListFiltered.length > 0 ? (
+      {classificationListFiltered.sort((c) => c.createdAt).length > 0 ? (
         classificationListFiltered.map((classification) => {
           return (
             <HistoricCard
@@ -146,9 +146,8 @@ const HistoricClassification = ({ navigation }: RouterProps) => {
               key={classification.id}
               id={classification.id}
               createdAt={classification.createdAt}
-              finishedAt={
-                !classification.finishedAt ? null : classification.finishedAt
-              }
+              startedAt={classification.startedAt}
+              finishedAt={classification.finishedAt}
             />
           );
         })

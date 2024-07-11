@@ -1,5 +1,4 @@
 import React from "react";
-import { Timestamp } from "firebase/firestore";
 import { Entypo } from "@expo/vector-icons";
 
 import {
@@ -12,29 +11,16 @@ import {
 import { HitoricCardProps } from "../types/props";
 import { NavigationProp } from "@react-navigation/native";
 import { deleteClassificationService } from "../services/classification";
+import { timeConverter } from "../utils/readableTimestamp";
 
 interface Props extends HitoricCardProps {
   navigation: NavigationProp<any, any>;
 }
 
 const HistoricCard = (props: Props) => {
-  const { id, createdAt, finishedAt, navigation } = props;
-  // console.log({ createdAt, finishedAt });
-  // const getReadableDuration = (
-  //   createdAt: Timestamp["nanoseconds"],
-  //   finishedAt: Timestamp["nanoseconds"] | null
-  // ) => {
-  //   if (!finishedAt) {
-  //     return "En progreso";
-  //   }
+  const { id, createdAt, finishedAt, navigation, startedAt } = props;
 
-  //   const duration = finishedAt - createdAt;
-  //   const minutes = Math.floor(duration / 60000);
-  //   const seconds = ((duration % 60000) / 1000).toFixed(0);
-  //   return `${minutes}:${seconds}`;
-  // };
-
-  // const date = new Date(createdAt * 1000).toLocaleString();
+  console.log(timeConverter(0));
 
   const deleteClassification = async (code: string) => {
     try {
@@ -52,6 +38,16 @@ const HistoricCard = (props: Props) => {
     });
   };
 
+  // const createdAtConverted = timeConverter(createdAt);
+  const finishAtConverted =
+    finishedAt === 0 ? "En curso" : timeConverter(finishedAt);
+  const startedConverted = timeConverter(startedAt);
+  console.log(createdAt);
+
+  if (finishedAt === 0 && startedAt === 0) {
+    return;
+  }
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -65,19 +61,12 @@ const HistoricCard = (props: Props) => {
             <Text>{id}</Text>
           </View>
           <View style={styles.dataContainer}>
-            <Text style={styles.label}>Fecha Hora:</Text>
-            <Text>
-              {String(createdAt).slice(5, 17)} - {String(createdAt).slice(17, 25)}
-            </Text>
+            <Text style={styles.label}>Fecha Inicio:</Text>
+            <Text>{startedConverted}</Text>
           </View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Fecha Fin:</Text>
-            <Text>
-              {String(finishedAt) === "In progress"
-                ? "En curso"
-                : String(finishedAt).slice(5, 17)}{" "}
-              - {String(finishedAt).slice(17, 25)}
-            </Text>
+            <Text>{finishAtConverted}</Text>
           </View>
         </View>
         <View>

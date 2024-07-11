@@ -3,6 +3,7 @@ import { Text, View } from "react-native";
 import { ClassificationResponse } from "../types/classifications/types";
 import { getSeedClassificationById } from "../services/classification";
 import ClassificationPaiChart from "../components/ClassificationPaiChart";
+import { timeConverter } from "../utils/readableTimestamp";
 
 type Props = {
   route: any;
@@ -49,21 +50,17 @@ const SeedClassificationDetail = ({ route }: Props) => {
         <Text>Id de clasificación: {classificationData.id}</Text>
         <Text>
           Fecha de creación de clasificación:{" "}
-          {classificationData.createdAt.toString().slice(4, 17)}
+          {timeConverter(classificationData.createdAt)}
         </Text>
         <Text>
           Fecha de inicio de classificación:{" "}
-          {typeof classificationData.startedAt === "string" &&
-          classificationData.startedAt === "No started"
-            ? "No iniciado"
-            : classificationData.startedAt}
+          {timeConverter(classificationData.startedAt)}
         </Text>
         <Text>
           Fecha de fin de classificación:{" "}
-          {typeof classificationData.finishedAt === "string" &&
-          classificationData.finishedAt === "In progress"
-            ? "No finalizado"
-            : classificationData.finishedAt}
+          {classificationData.finishedAt === 0
+            ? "En curso"
+            : timeConverter(classificationData.finishedAt)}
         </Text>
       </View>
       {classificationData.classificationData.oocarpa +

@@ -42,6 +42,19 @@ describe("TaskRegister Component", () => {
     });
   });
 
+  it("it should allow register a technician to an task", async () => {
+    getTechnicalUsersHandler.mockResolvedValueOnce([
+      { name: "Technical 1", id: "1" },
+      { name: "Technical 2", id: "2" },
+    ]);
+
+    const { getByText } = render(<TaskRegister />);
+
+    await waitFor(() => {
+      expect(getByText("Técnico")).toBeTruthy();
+    });
+  });
+
   it("should register a task", async () => {
     const jsdomAlert = window.alert; // remember the jsdom alert
     window.alert = () => {};

@@ -2,8 +2,8 @@
 export interface Classification {
   businessId: string;
   classificationData: ClassificationData;
-  startedAt: number | null; // Timestamp in seconds
-  finishedAt: number | null; // Timestamp in seconds
+  startedAt: number; // Timestamp in seconds
+  finishedAt: number; // Timestamp in seconds
   task: ClassificationTask | null;
   userId: string;
 }

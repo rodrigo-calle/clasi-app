@@ -1,17 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { NavigationProp } from "@react-navigation/native";
+import { ClassificationResponse } from "../types/classifications/types";
+import { useEffect, useState } from "react";
+import { getClassificationsHandler } from "../handlers/classifications/getClassification";
+import { getCurrentUser } from "../services/session";
+import { getUserByEmail } from "../services/users";
 import { ScrollView, Text, StyleSheet } from "react-native";
 import Loading from "../components/Loading";
-import { ClassificationResponse } from "../types/classifications/types";
-import { getClassificationsHandler } from "../handlers/classifications/getClassification";
-import { NavigationProp } from "@react-navigation/native";
 import ClassificationInProgressCard from "../components/ClassificationInProgressCard";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
 }
-
-const ClassificationInProgressList = ({ navigation }: RouterProps) => {
+const ClassificationByTech = ({ navigation }: RouterProps) => {
   const [openLoader, setOpenLoader] = useState<boolean>(false);
+  const [currentTech, setCurrentTech] = useState<string>("");
+
   const [classificationList, setClassificationList] = useState<
     ClassificationResponse[]
   >([]);
@@ -19,10 +23,13 @@ const ClassificationInProgressList = ({ navigation }: RouterProps) => {
   const getClassificationList = async () => {
     try {
       setOpenLoader(true);
+      const currentUser = getCurrentUser();
+
+      const user = await getUserByEmail(currentUser?.email ?? "");
+      setCurrentTech(user?.name ?? "");
       const classificationsSessions = await getClassificationsHandler();
       const filtered = classificationsSessions.filter(
-        (classification) =>
-          classification.startedAt > 0 && classification.finishedAt === 0
+        (classification) => classification.task?.technicalId === user?.id
       );
       setClassificationList(filtered);
       setOpenLoader(false);
@@ -53,7 +60,7 @@ const ClassificationInProgressList = ({ navigation }: RouterProps) => {
           width: "80%",
         }}
       >
-        Sesiones de Clasificación en Curso
+        Clasificación por Técnico {currentTech}
       </Text>
       {classificationList.length > 0 ? (
         classificationList.map((classification) => {
@@ -75,7 +82,7 @@ const ClassificationInProgressList = ({ navigation }: RouterProps) => {
   );
 };
 
-export default ClassificationInProgressList;
+export default ClassificationByTech;
 
 const styles = StyleSheet.create({
   picker: {

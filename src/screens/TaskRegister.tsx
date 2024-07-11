@@ -129,8 +129,8 @@ const TaskRegister = () => {
           psegoustrobus: 0,
           tecunumanii: 0,
         },
-        startedAt: null,
-        finishedAt: null,
+        startedAt: 0,
+        finishedAt: 0,
         task: formData,
         userId: currentUser?.id || "",
       };
@@ -152,7 +152,7 @@ const TaskRegister = () => {
       setLoading(false);
     }
   };
-
+  console.log({ technicals });
   return (
     <View
       style={{
@@ -183,7 +183,7 @@ const TaskRegister = () => {
           placeholder="Seleccionar técnico..."
           style={styles.picker}
           selectedValue={
-            technicals.find((t) => t.value === formData.technicalId)?.name
+            technicals.find((t) => t.value === formData.technicalId)?.value
           }
         >
           {technicals?.map((technical, index) => {

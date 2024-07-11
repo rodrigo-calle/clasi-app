@@ -43,4 +43,13 @@ export const updateClassification = async (
 
     return classificationFinished;
   }
+
+  if (updateMethodKind === ClassificationUpdateMethodsKind.START) {
+    await updateSeedClassification(
+      classificationId,
+      ClassificationUpdateMethodsKind.START,
+      {}
+    );
+    return
+  }
 };

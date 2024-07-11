@@ -3,9 +3,9 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { CameraButtonProps } from "../types/props";
 
-const CameraButton = ({ title, onPress, icon, color }: CameraButtonProps) => {
+const CameraButton = ({ title, onPress, icon, color, testID }: CameraButtonProps) => {
   return (
-    <TouchableOpacity onPress={onPress}>
+    <TouchableOpacity onPress={onPress} testID={testID}>
       <Entypo name={icon} size={24} color={color ? color : "#f1f1f1"} />
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>

@@ -22,10 +22,15 @@ import {
   updateSeedCounterHandler,
 } from "../handlers/classifications/classification";
 import { createSeedClassificationHandler } from "../handlers/classifications/createClassification";
-import { CreateClassification } from "../types/classifications/types";
+import {
+  ClassificationResponse,
+  ClassificationUpdateMethodsKind,
+  CreateClassification,
+} from "../types/classifications/types";
 import { getCurrentUser, logout } from "../services/session";
 import { getUserByEmail } from "../services/users";
 import { getSeedClassificationByIdHandler } from "../handlers/classification";
+import { updateClassification } from "../handlers/classifications/updateClassification";
 
 interface RouterProps {
   navigation: NavigationProp<any, any>;
@@ -52,8 +57,11 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
   });
   const [openLoading, setOpenLoading] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState<string | null>(null);
+  const [currentClassification, setCurrentClassification] =
+    useState<ClassificationResponse | null>(null);
 
-  const cameraRef = useRef<CameraRefType>(null);
+  //CameraRefType
+  const cameraRef = useRef<any>(null);
 
   useEffect(() => {
     (async () => {
@@ -68,6 +76,7 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
           route.params.id
         );
         if (classification) {
+          setCurrentClassification(classification);
           setClassificationDataValues({
             tecunumanii: classification.classificationData.tecunumanii,
             oocarpa: classification.classificationData.oocarpa,
@@ -124,6 +133,26 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
           currentClassificationSessionId
         );
 
+        if (
+          currentClassification &&
+          currentClassification.task &&
+          currentClassification.startedAt === 0
+        ) {
+          const userEmail = getCurrentUser()?.email;
+          const currentUser = await getUserByEmail(userEmail!);
+
+          if (
+            currentUser &&
+            currentUser.id === currentClassification.task.technicalId
+          ) {
+            updateClassification(
+              ClassificationUpdateMethodsKind.START,
+              currentClassification.id,
+              {}
+            );
+          }
+        }
+
         if (!classificationUpdated) {
           alert("Error al clasificar la semilla");
           setOpenLoading(false);
@@ -154,12 +183,6 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
       setOpenLoading(true);
       setLoadingMessage("Iniciando sesión de clasificación...");
       const userEmail = getCurrentUser()?.email;
-      // const q = query(
-      //   collection(db, USER_COLLECTION),
-      //   where("email", "==", user)
-      // );
-      // const usersResult = await getDocs(q);
-
       const currentUser = await getUserByEmail(userEmail!);
 
       if (!currentUser) {
@@ -173,8 +196,8 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
           psegoustrobus: 0,
           tecunumanii: 0,
         },
-        startedAt: Timestamp.now().toMillis(),
-        finishedAt: null,
+        startedAt: 1,
+        finishedAt: 0,
         task: null,
         userId: currentUser?.id,
       };
@@ -216,7 +239,11 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
 
   return (
     <ScrollView scrollEnabled={!openLoading}>
-      <Button title="Cerrar Sesión" onPress={() => logout()}></Button>
+      <Button
+        testID="logout-button"
+        title="Cerrar Sesión"
+        onPress={() => logout()}
+      ></Button>
       <Loading text={loadingMessage} open={openLoading}></Loading>
       <View
         style={{
@@ -341,6 +368,7 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
               title=""
               color="#000"
               onPress={classificationSessionHandler}
+              testID="start-session-button"
             ></CameraButton>
           </View>
           <View style={styles.mediaButtons}>
@@ -349,6 +377,7 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
               title=""
               color="#000"
               onPress={saveAndContinue}
+              testID="take-picture-button2"
             ></CameraButton>
           </View>
           <View style={styles.mediaButtons}>
@@ -357,11 +386,13 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
               title=""
               color="#000"
               onPress={takePictureAgain}
+              testID="take-picture-button"
             ></CameraButton>
           </View>
         </View>
         <View style={styles.mediaButtons}>
           <CameraButton
+            testID="take-picture-button1"
             icon={IconType.camera}
             title=""
             color="#000"
@@ -494,6 +525,21 @@ const ClassificationSession = ({ route, navigation }: RouterProps) => {
             }
           >
             Clasificaciones en Curso
+          </Text>
+          <Text
+            style={{
+              color: "blue",
+              marginLeft: 25,
+              marginTop: 15,
+              marginBottom: 10,
+            }}
+            onPress={() =>
+              navigation.navigate("Clasificaciones por técnico", {
+                id: null,
+              })
+            }
+          >
+            Clasificaciones por técnico
           </Text>
         </View>
       ) : (

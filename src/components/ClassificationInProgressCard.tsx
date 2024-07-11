@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { HitoricCardProps } from "../types/props";
 import { NavigationProp } from "@react-navigation/native";
+import { timeConverter } from "../utils/readableTimestamp";
 
 interface Props extends HitoricCardProps {
   navigation: NavigationProp<any, any>;
@@ -34,9 +35,11 @@ const ClassificationInProgressCard = (props: Props) => {
   };
 
   const date = new Date(createdAt * 1000).toLocaleString();
+  const isClassificationFinished = createdAt > 0 && finishedAt > 0;
+  const isClassificationNotInitialized = createdAt === 0 && finishedAt === 0;
 
   const onPressHandle = async (code: string) => {
-    console.log("code", code);
+    if (isClassificationFinished) return;
     navigation.navigate("Sesión de Clasificación de Semilla", {
       id: code,
     });
@@ -56,13 +59,17 @@ const ClassificationInProgressCard = (props: Props) => {
           </View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Fecha Hora:</Text>
-            <Text>
-              {createdAt.slice(5, 17)} - {createdAt.slice(17, 25)}
-            </Text>
+            <Text>{timeConverter(createdAt)}</Text>
           </View>
           <View style={styles.dataContainer}>
             <Text style={styles.label}>Duración:</Text>
-            <Text>{"EN CURSO"}</Text>
+            {isClassificationFinished ? (
+              <Text>{"FINALIZADO"}</Text>
+            ) : isClassificationNotInitialized ? (
+              <Text>{"NO INICIADO"}</Text>
+            ) : (
+              <Text>{"EN CURSO"}</Text>
+            )}
           </View>
         </View>
         <View>

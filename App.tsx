@@ -14,7 +14,7 @@ import TaskRegister from "./src/screens/TaskRegister";
 import ClassificationSession from "./src/screens/ClassificationSession";
 import SeedClassificationDetail from "./src/screens/SeedClassificationDetail";
 import ClassificationInProgressList from "./src/screens/ClassificationInProgressList";
-
+import ClassificationByTech from "./src/screens/ClassificationByTech";
 const Stack = createNativeStackNavigator();
 const InsideStack = createNativeStackNavigator();
 
@@ -29,7 +29,7 @@ function InsideLayout() {
         name="Detalles de Clasificación"
         component={SeedClassificationDetail}
         options={{
-          title: "Detalles de Clasificación1",
+          title: "Detalles de Clasificación",
         }}
       />
       <InsideStack.Screen
@@ -49,6 +49,10 @@ function InsideLayout() {
       <InsideStack.Screen
         name="Clasificaciones en progreso"
         component={ClassificationInProgressList}
+      />
+      <InsideStack.Screen
+        name="Clasificaciones por técnico"
+        component={ClassificationByTech}
       />
     </InsideStack.Navigator>
   );
